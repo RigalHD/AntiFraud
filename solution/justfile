@@ -1,0 +1,19 @@
+set windows-powershell := true
+
+dev:
+    just down
+    docker compose -f compose.yaml up --build
+
+down:
+    docker compose -f compose.yaml down
+
+clear:
+    docker compose -f compose.yaml down -v
+
+lint:
+    ruff format
+    ruff check --fix
+    mypy --strict
+
+migration *ARGS:
+    docker exec -it antifraud-backend backend migrations autogenerate "{{ARGS}}"
