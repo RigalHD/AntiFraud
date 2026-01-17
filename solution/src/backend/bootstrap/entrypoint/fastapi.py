@@ -42,7 +42,7 @@ def main(_args: list[str] | None) -> None:
     uvicorn.run(
         "backend.bootstrap.entrypoint.fastapi:app",
         host="0.0.0.0",
-        port=5000,
+        port=8080,
         log_level="info",
         proxy_headers=True,
     )

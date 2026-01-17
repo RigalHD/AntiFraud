@@ -1,14 +1,13 @@
 set windows-powershell := true
 
-dev:
-    just down
-    docker compose -f compose.yaml up --build
+setup docker:
+    docker network create antifraud-net
 
 down:
-    docker compose -f compose.yaml down
+    docker stop app postgres redis
 
 clear:
-    docker compose -f compose.yaml down -v
+    docker rm -f app postgres redis
 
 lint:
     ruff format
@@ -16,4 +15,4 @@ lint:
     mypy --strict
 
 migration *ARGS:
-    docker exec -it antifraud-backend backend migrations autogenerate "{{ARGS}}"
+    docker exec -it app backend migrations autogenerate "{{ARGS}}"
