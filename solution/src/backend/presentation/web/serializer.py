@@ -4,6 +4,6 @@ from adaptix import Retort, dumper
 
 serializer = Retort(
     recipe=[
-        dumper(datetime, lambda x: x.strftime("%d-%m-%Y %H:%M:%S")),
+        dumper(datetime, lambda x: f"{x.strftime('%Y-%m-%d')}T{x.strftime('%H:%M:%S')}Z"),
     ],
 )

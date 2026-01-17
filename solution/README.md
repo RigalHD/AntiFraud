@@ -9,7 +9,7 @@
 2) Затем создайте сеть докера
 - just -f solution/justfile setup_docker
 
-### Затем выполните эти команды для запуска
+### Затем выполните эти команды для первого запуска
 
 docker run -d --name postgres \
   --network antifraud-net \

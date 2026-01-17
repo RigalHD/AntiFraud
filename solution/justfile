@@ -3,7 +3,7 @@ set windows-powershell := true
 setup docker:
     docker network create antifraud-net
 
-down:
+stop:
     docker stop app postgres redis
 
 clear:
