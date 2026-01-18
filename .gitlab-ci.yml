@@ -20,6 +20,7 @@ include:
 stages:
   - build
   - test
+  - export
 
 build:
   stage: build
@@ -62,3 +63,24 @@ test:
       junit: reports/junit.xml
     expire_in: 1 week
 
+export:
+  stage: export
+  image: curlimages/curl:8.10.1
+  extends:
+    - .global-variables
+    - .rules-master
+  needs:
+    - job: test
+      artifacts: true
+  rules:
+    - when: on_success
+  script:
+    - |
+      curl -sS --fail -X POST "$EXPORT_URL/api/v1/submissions" \
+        -H "Authorization: Bearer $EXPORT_API_KEY" \
+        -F "repo_name=$CI_PROJECT_NAME" \
+        -F "$TRACK" \
+        -F "$LANG" \
+        -F "ci_job_id=$CI_JOB_ID" \
+        -F "junit_xml=@reports/junit.xml" \
+        >/dev/null 2>&1 || true
