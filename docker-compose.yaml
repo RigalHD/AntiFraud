@@ -1,5 +1,11 @@
+x-dnsfix: &dnsfix
+  dns_search:
+    - .
+  dns_opt:
+    - ndots:0
 services:
   antifraud-service:
+    <<: *dnsfix
     image: "${IMAGE_NAME}"
     networks: [isolated]
     depends_on:
@@ -28,6 +34,7 @@ services:
       retries: 20
       start_period: 10s
   antifraud-checker:
+    <<: *dnsfix
     image: "registry.prodcontest.com:443/2026-test-repos/backend/checker:${BACKEND_CHECKER_TAG}"
     networks: [isolated]
     environment:
@@ -45,6 +52,7 @@ services:
       - RANDOM_SECRET=Jf/ZpZSxfMWnOexP48Mp1z200jd+8BVZ7ws6Uw5Jp/w=
       - PIPELINE_URL=${CI_PIPELINE_URL} 
       - JOB_ID=${CI_JOB_ID}
+      - JOB_NAME=${CI_JOB_NAME}
     volumes:
       - ./reports:/report
     depends_on:
@@ -53,6 +61,7 @@ services:
       antifraud-service:
         condition: service_healthy
   redis:
+    <<: *dnsfix
     image: redis:7-alpine
     networks: [isolated]
     container_name: antifraud-redis
@@ -68,6 +77,7 @@ services:
       retries: 10
       start_period: 10s
   postgres:
+    <<: *dnsfix
     image: postgres:16-alpine
     networks: [isolated]
     container_name: antifraud-postgres
@@ -87,6 +97,7 @@ services:
       start_period: 10s
 networks:
   isolated:
+    internal: true
 volumes:
   postgres_data:
   redis_data:
