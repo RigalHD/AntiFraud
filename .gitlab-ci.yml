@@ -79,8 +79,8 @@ export:
       curl -sS --fail -X POST "$EXPORT_URL/api/v1/submissions" \
         -H "Authorization: Bearer $EXPORT_API_KEY" \
         -F "repo_name=$CI_PROJECT_NAME" \
+        -F "ci_job_id=$CI_JOB_ID" \
         -F "$TRACK" \
         -F "$LANG" \
-        -F "ci_job_id=$CI_JOB_ID" \
         -F "junit_xml=@reports/junit.xml" \
         >/dev/null 2>&1 || true
