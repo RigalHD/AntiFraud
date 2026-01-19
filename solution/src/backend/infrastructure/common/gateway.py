@@ -1,5 +1,4 @@
 from typing import Protocol
 
 
-class WebUserGateway(Protocol):
-    ...
+class WebUserGateway(Protocol): ...

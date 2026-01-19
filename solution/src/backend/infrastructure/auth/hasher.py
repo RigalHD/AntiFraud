@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Protocol
 
 from argon2 import PasswordHasher
@@ -10,6 +11,7 @@ class Hasher(Protocol):
     def verify(self, raw: str, hashed: str) -> bool: ...
 
 
+@dataclass(slots=True, frozen=True)
 class ArgonHasher(Hasher):
     argon: PasswordHasher
 

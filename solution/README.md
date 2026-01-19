@@ -28,6 +28,7 @@ docker run -d --name redis \
 docker build -f solution/Dockerfile -t antifraud .
 docker run -d --name app \
   --network antifraud-net \
+  -v $(pwd)/solution/src/backend/infrastructure/database/alembic/migrations/versions:/home/app/src/backend/infrastructure/database/alembic/migrations/versions \
   -e ADMIN_EMAIL=admin@mail.ru \
   -e ADMIN_FULLNAME=Test\ Test \
   -e ADMIN_PASSWORD=123123123aA! \

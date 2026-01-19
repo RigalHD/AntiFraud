@@ -92,6 +92,7 @@ ignore = [
     'F821',
     # Not applicable now
     'ARG001',
+    'A002',
 ]
 
 [project.scripts]

@@ -14,8 +14,8 @@ class ReadUser:
     idp: UserIdProvider
     gateway: UserGateway
 
-    async def execute(self, user_id: UUID) -> User:
-        user = await self.gateway.get_by_id(user_id)
+    async def execute(self, id: UUID) -> User:
+        user = await self.gateway.get_by_id(id)
 
         if user is None:
             raise UserDoesNotExistError

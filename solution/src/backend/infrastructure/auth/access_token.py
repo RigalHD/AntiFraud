@@ -3,12 +3,16 @@ from datetime import datetime
 from uuid import UUID
 
 from backend.domain.entity.user import User
+from backend.domain.misc_types import Role
 
 
 @dataclass
 class AccessToken:
     user_id: UUID
+    role: Role
     token: str
-    expires_at: datetime
 
-    user: User
+    created_at: datetime
+    expires_in: datetime
+
+    user: User | None = None
