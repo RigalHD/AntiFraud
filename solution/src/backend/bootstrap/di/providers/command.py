@@ -1,4 +1,7 @@
-from dishka import Provider, Scope
+from backend.application.user.create import CreateUser
+from backend.application.user.read import ReadUser
+from backend.presentation.web.controller.registration import WebRegistration
+from dishka import Provider, Scope, provide, provide_all
 
 
 class CommandProvider(Provider):
@@ -8,5 +11,5 @@ class CommandProvider(Provider):
 
     # commands = provide_all(
     #     ReadUser,
-    #     ReadUsers,
+    #     WebRegistration,
     # )

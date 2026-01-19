@@ -1,3 +1,4 @@
+from backend.bootstrap.di.providers.parsed_data import ParsedDataProvider
 from dishka import AsyncContainer, Provider, make_async_container
 from dishka.integrations.fastapi import FastapiProvider
 
@@ -16,6 +17,7 @@ def provider_set() -> list[Provider]:
         CommandProvider(),
         GatewayProvider(),
         MiscProvider(),
+        ParsedDataProvider(),
     ]
 
 

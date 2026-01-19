@@ -11,3 +11,8 @@ class MaritalStatus(Enum):
     MARRIED = "MARRIED"
     DIVORCED = "DIVORCED"
     WIDOWED = "WIDOWED"
+    
+    
+class Role(Enum):
+    USER = "USER"
+    ADMIN = "ADMIN"
