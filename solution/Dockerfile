@@ -1,14 +1,16 @@
-FROM python:3.12.1-alpine3.19
+FROM python:3.13.11-alpine3.23
 
-WORKDIR /app
+ENV APP_HOME=/home/app/
+WORKDIR $APP_HOME
 
 RUN apk add --no-cache curl
 
-COPY solution/requirements.txt requirements.txt
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN mkdir ./src
 
-COPY ./solution .
+RUN pip install uv
 
-ENV SERVER_PORT=8080
+COPY ./solution/pyproject.toml $APP_HOME
+COPY ./solution/src/ $APP_HOME/src/
+RUN uv pip install -e . --system
 
-CMD ["sh", "-c", "exec python3 -m flask run --host=0.0.0.0 --port=$SERVER_PORT"]
+CMD ["sh", "-c", "exec backend run api"]

@@ -1,0 +1,18 @@
+set windows-powershell := true
+
+setup docker:
+    docker network create antifraud-net
+
+stop:
+    docker stop app postgres redis
+
+clear:
+    docker rm -f app postgres redis
+
+lint:
+    ruff format
+    ruff check --fix
+    mypy --strict
+
+migration *ARGS:
+    docker exec -it app backend migrations autogenerate "{{ARGS}}"
