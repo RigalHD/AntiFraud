@@ -3,11 +3,9 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from sqlalchemy import func, select
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.application.common.gateway.user import UserGateway
-from backend.application.exception.user import EmailAlreadyExistsError
 from backend.domain.entity.user import User
 from backend.infrastructure.database.table.user import user_table
 
@@ -39,10 +37,3 @@ class SAUserGateway(UserGateway):
 
         res = await self.session.execute(stmt)
         return res.scalar()
-
-    async def try_insert_unique(self, user: User) -> None:
-        try:
-            self.session.add(user)
-            await self.session.flush((user,))
-        except IntegrityError as e:
-            raise EmailAlreadyExistsError from e

@@ -18,6 +18,3 @@ class UserGateway(Protocol):
 
     @abstractmethod
     async def get_count(self) -> int | None: ...
-
-    @abstractmethod
-    async def try_insert_unique(self, user: User) -> None: ...
