@@ -3,6 +3,7 @@ from uuid import uuid4
 from backend.application.common.decorator import interactor
 from backend.application.common.gateway.user import UserGateway
 from backend.application.common.uow import UoW
+from backend.application.exception.user import EmailAlreadyExistsError
 from backend.application.forms.user import UserForm
 from backend.domain.entity.user import User
 from backend.infrastructure.auth.hasher import Hasher
@@ -17,6 +18,9 @@ class CreateUser:
     async def execute(self, form: UserForm) -> User:
         hashed_password = self.hasher.hash(form.password)
 
+        if await self.gateway.get_by_email(form.email):
+            raise EmailAlreadyExistsError
+        
         user = User(
             id=uuid4(),
             email=form.email,
@@ -28,7 +32,8 @@ class CreateUser:
             marital_status=form.marital_status,
         )
 
-        await self.gateway.try_insert_unique(user)
+        self.uow.add(user)
+        await self.uow.flush((user,))
         await self.uow.commit()
 
         return user

@@ -39,10 +39,3 @@ class SAUserGateway(UserGateway):
 
         res = await self.session.execute(stmt)
         return res.scalar()
-
-    async def try_insert_unique(self, user: User) -> None:
-        try:
-            self.session.add(user)
-            await self.session.flush((user,))
-        except IntegrityError as e:
-            raise EmailAlreadyExistsError from e
