@@ -12,8 +12,8 @@ from backend.presentation.web.fastapi import include_exception_handlers, include
 
 app = FastAPI()
 
-include_routers(app)
 include_exception_handlers(app)
+include_routers(app)
 include_middlewares(app)
 
 setup_dishka(container=get_async_container(), app=app)

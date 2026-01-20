@@ -13,3 +13,8 @@ async def ping() -> dict[str, str]:
 @main_router.get("/")
 async def main_page() -> JSONResponse:
     return JSONResponse(content={"foo": "bar"}, status_code=200)
+
+
+@main_router.get("/error")
+async def internal_server_error() -> None:
+    raise ValueError

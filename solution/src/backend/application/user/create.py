@@ -19,8 +19,8 @@ class CreateUser:
         hashed_password = self.hasher.hash(form.password)
 
         if await self.gateway.get_by_email(form.email):
-            raise EmailAlreadyExistsError
-        
+            raise EmailAlreadyExistsError(email=form.email)
+
         user = User(
             id=uuid4(),
             email=form.email,

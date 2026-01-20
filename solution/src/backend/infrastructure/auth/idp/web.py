@@ -10,9 +10,9 @@ from backend.application.exception.user import InactiveUserError
 from backend.domain.entity.user import User
 from backend.domain.misc_types import Role
 from backend.infrastructure.auth.access_token import AccessToken
+from backend.infrastructure.auth.exception import UnauthorizedError
 from backend.infrastructure.auth.idp.token_parser import AccessTokenParser
 from backend.infrastructure.auth.idp.token_processor import AccessTokenProcessor
-from backend.infrastructure.exceptions.auth import UnauthorizedError
 
 TOKEN_TYPE = "Bearer"  # noqa: S105
 BEARER_SECTIONS = 2
