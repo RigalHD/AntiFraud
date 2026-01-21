@@ -9,7 +9,7 @@ from typing import Literal, Self
 from uuid import UUID, uuid4
 
 from adaptix import Retort
-from aiohttp import ClientResponse, ClientSession
+from aiohttp import ClientSession
 from descanso import RestBuilder
 from descanso.client import AsyncResponseWrapper
 from descanso.http.aiohttp import AiohttpClient
@@ -69,7 +69,7 @@ ERROR_CODE = {
     InvalidPaginationQueryError: "INVALID_PAGINATION_QUERY",
     JSONDecodeError: "BAD_REQUEST",
     InactiveUserError: "USER_INACTIVE",
-    ValidationError: "VAfrom backend.infrastructure.serialization.api_client import api_dump_serializer, api_load_serializerLIDATION_FAILED",
+    ValidationError: "VALIDATION_FAILED",
 }
 
 DETAIL: dict[type[Exception], dict[str, str | int]] = {
@@ -122,8 +122,8 @@ class APIResponse[T]:
             raise UnableToUnwrapError
 
         return self.data
-    
-    
+
+
 @dataclass(slots=True, frozen=True)
 class PingResponse:
     ping: Literal["pong"]
@@ -187,4 +187,3 @@ class AntiFraudApiClient(AiohttpClient):
     @rest.get("ping/")
     def ping(self) -> APIResponse[PingResponse]:
         raise NotImplementedError
-        
