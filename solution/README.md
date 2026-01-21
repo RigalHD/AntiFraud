@@ -81,7 +81,7 @@ docker run --rm \
   -e REDIS_PORT=6379 \
   -e API_URL=http://antifraud-tests-app:8080/api/v1/ \
   antifraud-tests \
-  pytest -vvv tests/unit/ping.py
+  pytest -vvv tests/integration/user/
 
 ## Удаление контейнеров с тестами
 docker rm -f postgres-test redis-test antifraud-tests-app

@@ -1,5 +1,4 @@
 import json
-import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -11,9 +10,13 @@ from descanso.http.aiohttp import AiohttpClient
 from descanso.request import HttpRequest
 from descanso.response import BaseResponseTransformer
 from descanso.response import HttpResponse as DescansoHttpResponse
+from descanso.response_transformers import ErrorRaiser
 
+from backend.application.forms.user import UserForm
 from backend.infrastructure.api.models import APIResponse, PingResponse
+from backend.infrastructure.auth.login import WebLoginForm
 from backend.infrastructure.serialization.api_client import api_dump_serializer, api_load_serializer
+from backend.presentation.web.controller.login import LoginResponse
 
 
 class ApiResponseTransformer(BaseResponseTransformer):
@@ -79,6 +82,18 @@ class AntiFraudApiClient(AiohttpClient):
         async with super().asend_request(request) as response:
             yield response
 
-    @rest.get("ping/")
+    @rest.get("ping")
     def ping(self) -> APIResponse[PingResponse]:
+        raise NotImplementedError
+
+    @rest.get("error", error_raiser=ErrorRaiser(except_codes=(500,)))
+    def error(self) -> APIResponse[None]:
+        raise NotImplementedError
+
+    @rest.post("auth/register", error_raiser=ErrorRaiser(except_codes=(201, 409, 422)))
+    def register(self, body: UserForm) -> APIResponse[LoginResponse]:
+        raise NotImplementedError
+
+    @rest.post("auth/login", error_raiser=ErrorRaiser(except_codes=(200, 401, 422, 423)))
+    def login(self, body: WebLoginForm) -> APIResponse[LoginResponse]:
         raise NotImplementedError

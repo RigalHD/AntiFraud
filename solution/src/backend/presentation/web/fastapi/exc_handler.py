@@ -11,10 +11,6 @@ from backend.infrastructure.parser.pydantic_error import PydanticErrorInfoParser
 from backend.infrastructure.serialization.error import error_serializer
 
 
-async def page_not_found_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    return JSONResponse({"error": "Page not found"}, status_code=404)
-
-
 async def validation_error_handler(
     request: Request,
     exc: ValidationError,
@@ -30,7 +26,7 @@ async def validation_error_handler(
 
 async def email_already_exists_error_handler(request: Request, exc: EmailAlreadyExistsError) -> JSONResponse:
     response = ApiErrorResponse.generate_default(type(exc), request.url.path)
-    response.detail = {
+    response.details = {
         "field": "email",
         "value": exc.email,
     }
@@ -43,6 +39,8 @@ async def app_error_handler(request: Request, exc: Exception) -> JSONResponse:
 
 
 async def internal_server_error_handler(request: Request, exc: Exception) -> JSONResponse:
-    logging.error(exc)
+    if not isinstance(exc, InternalServerError):
+        logging.error(exc)
+
     response = ApiErrorResponse.generate_default(InternalServerError, request.url.path)
     return JSONResponse(content=error_serializer.dump(response), status_code=ERROR_HTTP_CODE[InternalServerError])

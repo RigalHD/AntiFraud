@@ -1,11 +1,12 @@
-FROM python:3.13.11-alpine3.23
+FROM python:3.13.11-slim
 
 ENV APP_HOME=/home/app/
 WORKDIR $APP_HOME
 
-RUN apk add --no-cache curl
-
 RUN mkdir ./src
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 RUN pip install uv
 

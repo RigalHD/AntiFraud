@@ -62,7 +62,7 @@ ERROR_CODE = {
     ValidationError: "VALIDATION_FAILED",
 }
 
-DETAIL: dict[type[Exception], dict[str, str | int]] = {
+DETAILS: dict[type[Exception], dict[str, str | int]] = {
     JSONDecodeError: {"hint": "Проверьте запятые/кавычки"},
 }
 
@@ -73,8 +73,8 @@ class ApiErrorResponse:
     message: str
     timestamp: datetime
     path: str
-    trace_id: UUID | FieldSkip = FieldSkip.SKIP
-    detail: dict[str, str | int] | FieldSkip = FieldSkip.SKIP
+    trace_id: UUID
+    details: dict[str, str | int] | FieldSkip = FieldSkip.SKIP
     field_errors: list[FieldErrorInfo] | FieldSkip = FieldSkip.SKIP
 
     @staticmethod
@@ -85,7 +85,7 @@ class ApiErrorResponse:
             trace_id=uuid4(),
             timestamp=datetime.now(tz=UTC),
             path=path,
-            detail=DETAIL.get(exc_type, FieldSkip.SKIP),
+            details=DETAILS.get(exc_type, FieldSkip.SKIP),
         )
 
 

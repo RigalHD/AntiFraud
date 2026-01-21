@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -21,7 +21,7 @@ class AccessTokenProcessor:
                 "sub": str(user_id),
                 "role": role.value,
                 "iat": int(datetime.now(tz=UTC).timestamp()),
-                "exp": int((datetime.now(tz=UTC) + timedelta(seconds=EXPIRATION_TIME)).timestamp()),
+                "exp": EXPIRATION_TIME,
             },
             self.secret_key,
             ALG,
