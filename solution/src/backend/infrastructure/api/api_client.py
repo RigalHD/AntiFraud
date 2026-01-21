@@ -1,3 +1,5 @@
+import json
+import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -10,13 +12,13 @@ from descanso.request import HttpRequest
 from descanso.response import BaseResponseTransformer
 from descanso.response import HttpResponse as DescansoHttpResponse
 
-from backend.infrastructure.api.models import APIResponse, HttpResponse, PingResponse
+from backend.infrastructure.api.models import APIResponse, PingResponse
 from backend.infrastructure.serialization.api_client import api_dump_serializer, api_load_serializer
 
 
 class ApiResponseTransformer(BaseResponseTransformer):
     def need_response_body(self, response: DescansoHttpResponse) -> bool:
-        return False
+        return True
 
     def transform_response(
         self,
@@ -24,15 +26,22 @@ class ApiResponseTransformer(BaseResponseTransformer):
         response: DescansoHttpResponse,
     ) -> DescansoHttpResponse:
         data = None
-        http_response = HttpResponse(status=response.status_code, url=response.url)
+        http_response = {
+            "status": response.status_code,
+            "url": request.url,
+        }
         error_data = None
 
-        if response.status_code >= 200 and response.status_code < 300:
-            data = response.body
+        if response.status_code >= 200 and response.status_code < 300 and response.body:
+            data = json.loads(response.body)
         elif response.status_code >= 400:
-            error_data = response.body
+            error_data = json.loads(response.body)
 
-        response.body = {"data": data, "http_response": http_response, "error_data": error_data}
+        response.body = {
+            "data": data,
+            "httpResponse": http_response,
+            "errorData": error_data,
+        }
 
         return response
 

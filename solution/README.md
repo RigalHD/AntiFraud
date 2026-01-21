@@ -79,6 +79,7 @@ docker run --rm \
   -e DB_PASSWORD=testpass \
   -e REDIS_HOST=redis \
   -e REDIS_PORT=6379 \
+  -e API_URL=http://antifraud-tests-app:8080/api/v1/ \
   antifraud-tests \
   pytest -vvv tests/unit/ping.py
 

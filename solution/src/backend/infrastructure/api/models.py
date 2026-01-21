@@ -104,7 +104,7 @@ class PingResponse:
 class APIResponse[T]:
     data: T | None
     http_response: HttpResponse
-    error: ApiErrorResponse | None
+    error_data: ApiErrorResponse | None
 
     def compare_status(self, expected_status: int) -> Self:
         if (response_status := self.http_response.status) != expected_status:

@@ -1,3 +1,4 @@
+import os
 from collections.abc import AsyncIterable, AsyncIterator
 
 import aiohttp
@@ -52,7 +53,7 @@ async def gracefully_teardown(
 
 @pytest.fixture(scope="session")
 def base_url() -> str:
-    return "http://127.0.0.1:8080/api/v1/"
+    return os.environ["API_URL"]
 
 
 @pytest.fixture
