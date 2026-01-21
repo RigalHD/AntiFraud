@@ -5,10 +5,10 @@ from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
 from backend.application.exception.user import EmailAlreadyExistsError
-from backend.infrastructure.api_client import ERROR_HTTP_CODE, ApiErrorResponse
+from backend.infrastructure.api.exception import InternalServerError
+from backend.infrastructure.api.models import ERROR_HTTP_CODE, ApiErrorResponse
 from backend.infrastructure.parser.pydantic_error import PydanticErrorInfoParser
 from backend.infrastructure.serialization.error import error_serializer
-from backend.presentation.web.fastapi.exception import InternalServerError
 
 
 async def page_not_found_exception_handler(request: Request, exc: Exception) -> JSONResponse:

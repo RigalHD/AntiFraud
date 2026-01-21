@@ -8,7 +8,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.bootstrap.di.container import get_async_container
-from backend.infrastructure.api_client import AntiFraudApiClient
+from backend.infrastructure.api.api_client import AntiFraudApiClient
 
 
 @pytest.fixture

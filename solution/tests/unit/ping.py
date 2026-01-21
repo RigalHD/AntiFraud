@@ -1,4 +1,4 @@
-from backend.infrastructure.api_client import AntiFraudApiClient
+from backend.infrastructure.api.api_client import AntiFraudApiClient
 
 
 async def test_ok(api_client: AntiFraudApiClient) -> None:
