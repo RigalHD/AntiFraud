@@ -1,10 +1,8 @@
-from aiohttp import ClientSession
-from dishka import AsyncContainer
-from sqlalchemy.ext.asyncio import AsyncSession
+from backend.infrastructure.api_client import AntiFraudApiClient
 
 
-async def test_ok(http_session: ClientSession, session: AsyncSession, async_container: AsyncContainer) -> None:
-    assert 1 == 1
-    assert http_session
-    assert session
-    assert async_container
+async def test_ok(api_client: AntiFraudApiClient) -> None:
+    resp = await api_client.ping()
+    assert resp.http_response.status == 200
+    assert resp.data is not None
+    assert resp.data.status == "ok"

@@ -9,9 +9,6 @@ stop:
 clear:
     docker rm -f app postgres redis
 
-clear-tests:
-    docker rm -f
-
 lint:
     ruff format
     ruff check --fix

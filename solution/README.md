@@ -44,9 +44,10 @@ just -f solution/justfile stop
 just clear
 
 ## Тесты:
-Создайте сеть для тестов:
+### Создайте сеть для тестов:
 docker network create antifraud-test-net
 
+### Запустите контейнеры: 
 docker run -d --name postgres-test \
   --network antifraud-test-net \
   -e POSTGRES_USER=testuser \

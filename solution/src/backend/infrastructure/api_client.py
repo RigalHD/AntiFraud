@@ -14,7 +14,8 @@ from descanso import RestBuilder
 from descanso.client import AsyncResponseWrapper
 from descanso.http.aiohttp import AiohttpClient
 from descanso.request import HttpRequest
-from descanso.response import BaseResponseTransformer, HttpResponse
+from descanso.response import BaseResponseTransformer
+from descanso.response import HttpResponse as DescansoHttpResponse
 from pydantic import ValidationError
 
 from backend.application.exception.base import (
@@ -99,6 +100,12 @@ class ApiErrorResponse:
         )
 
 
+@dataclass(slots=True, frozen=True)
+class HttpResponse:
+    status: int
+    url: str
+
+
 class StatusMismatchError(Exception): ...
 
 
@@ -112,7 +119,7 @@ class APIResponse[T]:
     error: ApiErrorResponse | None
 
     def compare_status(self, expected_status: int) -> Self:
-        if (response_status := self.http_response.status_code) != expected_status:
+        if (response_status := self.http_response.status) != expected_status:
             message = f"Ожидаемый статус: {expected_status}, полученный: {response_status}"
             raise StatusMismatchError(message)
         return self
@@ -126,19 +133,20 @@ class APIResponse[T]:
 
 @dataclass(slots=True, frozen=True)
 class PingResponse:
-    ping: Literal["pong"]
+    status: Literal["ok"]
 
 
 class ApiResponseTransformer(BaseResponseTransformer):
-    def need_response_body(self, response: HttpResponse) -> bool:
+    def need_response_body(self, response: DescansoHttpResponse) -> bool:
         return False
 
     def transform_response(
         self,
         request: HttpRequest,
-        response: HttpResponse,
-    ) -> HttpResponse:
+        response: DescansoHttpResponse,
+    ) -> DescansoHttpResponse:
         data = None
+        http_response = HttpResponse(status=response.status_code, url=response.url)
         error_data = None
 
         if response.status_code >= 200 and response.status_code < 300:
@@ -146,7 +154,7 @@ class ApiResponseTransformer(BaseResponseTransformer):
         elif response.status_code >= 400:
             error_data = response.body
 
-        response.body = {"data": data, "http_response": response, "error_data": error_data}
+        response.body = {"data": data, "http_response": http_response, "error_data": error_data}
 
         return response
 
