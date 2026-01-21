@@ -25,6 +25,7 @@ dependencies = [
     "email-validator==2.3.0",
     "argon2-cffi==25.1.0",
     "pyjwt==2.10.1",
+    "descanso==0.7.1",
 ]
 
 [project.optional-dependencies]
@@ -40,6 +41,10 @@ where = ["src"]
 [tool.setuptools]
 include-package-data = true
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
 [tool.mypy]
 strict = true
 warn_unreachable = true
@@ -49,12 +54,12 @@ check_untyped_defs = true
 ignore_missing_imports = true
 warn_no_return = true
 
-files = ["src/",]
+files = ["src/", "tests/"]
 exclude = ["src/backend/infrastructure/database/alembic/"]
 
 [tool.ruff]
 line-length = 120
-include = ["pyproject.toml", "src/**/*.py"]
+include = ["pyproject.toml", "src/**/*.py", "tests/**/*.py"]
 exclude = ["src/**/infrastructure/database/alembic/**/*.py"]
 
 [tool.ruff.lint]
