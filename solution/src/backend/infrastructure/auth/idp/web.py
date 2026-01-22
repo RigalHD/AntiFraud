@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from fastapi import Request
 from jwt import PyJWTError
@@ -48,9 +48,13 @@ class FastAPITokenParser(AccessTokenParser):
             user_id=decoded_token["sub"],
             role=Role(decoded_token["role"]),
             token=token,
-            expires_in=datetime.fromtimestamp(decoded_token["exp"], tz=UTC),
+            expires_in=int(decoded_token["exp"]),
             created_at=datetime.fromtimestamp(decoded_token["iat"], tz=UTC),
         )
+
+        if (access_token.created_at + timedelta(seconds=access_token.expires_in)) < datetime.now(tz=UTC):
+            raise UnauthorizedError
+
         return access_token
 
 

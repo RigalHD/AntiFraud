@@ -15,11 +15,13 @@ from backend.presentation.web.fastapi.exc_handler import (
     validation_error_handler,
 )
 from backend.presentation.web.fastapi.main import main_router
+from backend.presentation.web.fastapi.users import users_router
 
 
 def include_routers(app: FastAPI) -> None:
     app.include_router(main_router, prefix="/api/v1", tags=["main"])
     app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
+    app.include_router(users_router, prefix="/api/v1/users", tags=["users"])
 
 
 def include_exception_handlers(app: FastAPI) -> None:

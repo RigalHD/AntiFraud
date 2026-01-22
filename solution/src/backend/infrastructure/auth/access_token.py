@@ -13,6 +13,6 @@ class AccessToken:
     token: str
 
     created_at: datetime
-    expires_in: datetime
+    expires_in: int
 
     user: User | None = None
