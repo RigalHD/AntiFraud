@@ -13,10 +13,10 @@ from backend.application.exception.base import (
     ForbiddenError,
     InvalidPaginationQueryError,
     NotFoundError,
+    UnauthorizedError,
 )
 from backend.application.exception.user import EmailAlreadyExistsError, InactiveUserError, UserDoesNotExistError
 from backend.infrastructure.api.exception import InternalServerError, StatusMismatchError, UnableToUnwrapError
-from backend.infrastructure.auth.exception import UnauthorizedError
 from backend.infrastructure.parser.pydantic_error import FieldErrorInfo
 from backend.infrastructure.serialization.base import FieldSkip
 

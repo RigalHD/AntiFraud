@@ -20,4 +20,4 @@ class ParsedDataProvider(Provider):
         return ParsedData(t(**(await request.json())))
 
 
-RequestData = FromDishka[ParsedData[T]]
+RequestBody = FromDishka[ParsedData[T]]

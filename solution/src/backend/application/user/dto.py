@@ -1,10 +1,11 @@
-from collections.abc import Sequence
+from dataclasses import dataclass
 
-from backend.application.common.decorator import interactor
 from backend.domain.entity.user import User
 
 
-@interactor
+@dataclass(slots=True, frozen=True)
 class Users:
-    users: Sequence[User]
-    total_users_count: int
+    items: list[User]
+    total: int
+    page: int
+    size: int

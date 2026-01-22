@@ -28,10 +28,9 @@ def validate_exception(data: UnwrappedErrorData, exc_type: type[Exception]) -> N
 
 def validate_validation_error(
     data: UnwrappedErrorData,
-    exc_type: type[ValidationError],
     invalid_fields: dict[str, Any],
 ) -> None:
-    validate_exception(data, exc_type)
+    validate_exception(data, ValidationError)
 
     error_data = data.error_data
 

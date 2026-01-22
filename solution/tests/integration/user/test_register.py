@@ -1,7 +1,6 @@
 from datetime import UTC, datetime
 
 import pytest
-from pydantic import ValidationError
 
 from backend.application.exception.user import EmailAlreadyExistsError
 from backend.application.forms.user import UserForm
@@ -72,4 +71,4 @@ async def test_validation_error(
 
     error_data = (await api_client.register(user_form)).expect_status(422).err_unwrap()
 
-    validate_validation_error(error_data, ValidationError, invalid_fields)
+    validate_validation_error(error_data, invalid_fields)

@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
 from backend.application.common.gateway.user import UserGateway
+from backend.application.exception.base import UnauthorizedError
 from backend.application.exception.user import InactiveUserError
 from backend.domain.entity.user import User
-from backend.infrastructure.auth.exception import UnauthorizedError
 from backend.infrastructure.auth.hasher import Hasher
 from backend.infrastructure.auth.idp.token_processor import EXPIRATION_TIME, AccessTokenProcessor
 from backend.infrastructure.auth.login import WebLoginForm

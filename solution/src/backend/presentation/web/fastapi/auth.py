@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
 from backend.application.forms.user import UserForm
-from backend.bootstrap.di.providers.parsed_data import RequestData
+from backend.bootstrap.di.providers.parsed_data import RequestBody
 from backend.infrastructure.auth.login import WebLoginForm
 from backend.presentation.web.controller.login import WebLogin
 from backend.presentation.web.controller.registration import WebRegistration
@@ -17,7 +17,7 @@ auth_router = APIRouter(route_class=DishkaRoute)
 async def register(
     web_register: FromDishka[WebRegistration],
     web_login: FromDishka[WebLogin],
-    form: RequestData[UserForm],
+    form: RequestBody[UserForm],
 ) -> JSONResponse:
     await web_register.execute(form.data)
 
@@ -37,7 +37,7 @@ async def register(
 @auth_router.post("/login")
 async def login(
     web_login: FromDishka[WebLogin],
-    form: RequestData[WebLoginForm],
+    form: RequestBody[WebLoginForm],
 ) -> JSONResponse:
     result = await web_login.execute(
         WebLoginForm(

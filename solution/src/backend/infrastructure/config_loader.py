@@ -39,9 +39,11 @@ class RedisConfig:
     redis_host: str
 
 
-@dataclass(frozen=True, slots=True)
-class MiscConfig:
-    dev_mode: bool
+@dataclass(slots=True)
+class AdminConfig:
+    admin_email: str
+    admin_full_name: str
+    admin_password: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -53,8 +55,8 @@ class JWTConfig:
 class Config:
     db: DataBaseConfig
     redis: RedisConfig
-    misc: MiscConfig
     jwt: JWTConfig
+    admin: AdminConfig
 
     @classmethod
     def load_from_environment(cls: type[Config]) -> Config:
@@ -76,8 +78,10 @@ class Config:
             secret_key=os.environ["RANDOM_SECRET"],
         )
 
-        misc = MiscConfig(
-            dev_mode=str_to_bool(os.environ.get("DEV_MODE", "False")),
+        admin = AdminConfig(
+            admin_email=os.environ["ADMIN_EMAIL"],
+            admin_full_name=os.environ["ADMIN_FULLNAME"],
+            admin_password=os.environ["ADMIN_PASSWORD"],
         )
 
-        return cls(db=db, redis=redis, misc=misc, jwt=jwt)
+        return cls(db=db, redis=redis, admin=admin, jwt=jwt)
