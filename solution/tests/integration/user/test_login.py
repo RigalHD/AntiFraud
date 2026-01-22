@@ -1,10 +1,9 @@
 from datetime import UTC, datetime
 
 import pytest
-from pydantic import ValidationError
 
+from backend.application.exception.base import UnauthorizedError
 from backend.infrastructure.api.api_client import AntiFraudApiClient
-from backend.infrastructure.auth.exception import UnauthorizedError
 from backend.infrastructure.auth.idp.token_processor import AccessTokenProcessor
 from backend.infrastructure.auth.login import WebLoginForm
 from tests.utils.exception_validation import validate_exception, validate_validation_error
@@ -88,4 +87,4 @@ async def test_validation_error(
 
     error_data = (await api_client.login(login_form)).expect_status(422).err_unwrap()
 
-    validate_validation_error(error_data, ValidationError, invalid_fields)
+    validate_validation_error(error_data, invalid_fields)

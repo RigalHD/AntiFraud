@@ -1,10 +1,10 @@
 from dishka import Provider, Scope, provide
 
 from backend.infrastructure.config_loader import (
+    AdminConfig,
     Config,
     DataBaseConfig,
     JWTConfig,
-    MiscConfig,
     RedisConfig,
 )
 
@@ -21,12 +21,12 @@ class ConfigProvider(Provider):
         return config.db
 
     @provide
-    def redis(self, config: Config) -> RedisConfig:
-        return config.redis
+    def admin(self, config: Config) -> AdminConfig:
+        return config.admin
 
     @provide
-    def misc(self, config: Config) -> MiscConfig:
-        return config.misc
+    def redis(self, config: Config) -> RedisConfig:
+        return config.redis
 
     @provide
     def jwt(self, config: Config) -> JWTConfig:

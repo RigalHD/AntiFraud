@@ -59,6 +59,9 @@ docker build -f solution/tests.Dockerfile -t antifraud-tests .
 docker run --rm \
   --name antifraud-tests-app \
   --network antifraud-test-net \
+  -e ADMIN_EMAIL=admin@mail.ru \
+  -e ADMIN_FULLNAME=Test\ Test \
+  -e ADMIN_PASSWORD=123123123aA! \
   -e DB_HOST=postgres-test \
   -e DB_PORT=5432 \
   -e DB_NAME=testdb_test \
@@ -71,6 +74,9 @@ docker run --rm \
 
 docker run --rm \
   --network antifraud-test-net \
+  -e ADMIN_EMAIL=admin@mail.ru \
+  -e ADMIN_FULLNAME=Test\ Test \
+  -e ADMIN_PASSWORD=123123123aA! \
   -e DB_HOST=postgres-test \
   -e DB_PORT=5432 \
   -e DB_NAME=testdb_test \

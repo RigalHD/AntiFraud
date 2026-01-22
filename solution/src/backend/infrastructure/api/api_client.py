@@ -1,6 +1,7 @@
 import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from uuid import UUID
 
 from adaptix import Retort
 from aiohttp import ClientSession
@@ -12,7 +13,9 @@ from descanso.response import BaseResponseTransformer
 from descanso.response import HttpResponse as DescansoHttpResponse
 from descanso.response_transformers import ErrorRaiser
 
-from backend.application.forms.user import UserForm
+from backend.application.forms.user import AdminUserForm, UpdateUserForm, UserForm
+from backend.application.user.dto import Users
+from backend.domain.entity.user import User
 from backend.infrastructure.api.models import APIResponse, PingResponse
 from backend.infrastructure.auth.login import WebLoginForm
 from backend.infrastructure.serialization.api_client import api_dump_serializer, api_load_serializer
@@ -65,7 +68,7 @@ class AntiFraudApiClient(AiohttpClient):
         )
         self.token = token
 
-    def authorize_by_token(self, token: str) -> None:
+    def authorize(self, token: str) -> None:
         self.token = token
 
     def reset_authorization(self) -> None:
@@ -96,4 +99,32 @@ class AntiFraudApiClient(AiohttpClient):
 
     @rest.post("auth/login", error_raiser=ErrorRaiser(except_codes=(200, 401, 422, 423)))
     def login(self, body: WebLoginForm) -> APIResponse[LoginResponse]:
+        raise NotImplementedError
+
+    @rest.post("users/", error_raiser=ErrorRaiser(except_codes=(201, 401, 403, 409, 422)))
+    def create_user(self, body: AdminUserForm) -> APIResponse[User]:
+        raise NotImplementedError
+
+    @rest.get("users/me", error_raiser=ErrorRaiser(except_codes=(200, 401)))
+    def read_user(self) -> APIResponse[User]:
+        raise NotImplementedError
+
+    @rest.get("users/", error_raiser=ErrorRaiser(except_codes=(200, 401, 403, 422)))
+    def read_users(self, page: int = 0, size: int = 20) -> APIResponse[Users]:
+        raise NotImplementedError
+
+    @rest.get("users/{id}", error_raiser=ErrorRaiser(except_codes=(200, 401, 404, 403)))
+    def read_user_by_id(self, id: UUID) -> APIResponse[User]:
+        raise NotImplementedError
+
+    @rest.put("users/me", error_raiser=ErrorRaiser(except_codes=(200, 401, 403, 422)))
+    def update_user(self, body: UpdateUserForm) -> APIResponse[User]:
+        raise NotImplementedError
+
+    @rest.put("users/{id}", error_raiser=ErrorRaiser(except_codes=(200, 401, 403, 404, 422)))
+    def update_user_by_id(self, id: UUID, body: UpdateUserForm) -> APIResponse[User]:
+        raise NotImplementedError
+
+    @rest.delete("users/{id}", error_raiser=ErrorRaiser(except_codes=(204, 401, 403, 404)))
+    def delete_user(self, id: UUID) -> APIResponse[None]:
         raise NotImplementedError

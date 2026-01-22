@@ -22,4 +22,8 @@ class UpdateUserForm(BaseForm):
     marital_status: MaritalStatus | None = Field(alias="maritalStatus")
 
     role: Role | None = Field(default=None)
-    is_active: bool | None = Field(default=None)
+    is_active: bool | None = Field(default=None, alias="isActive")
+
+
+class AdminUserForm(UserForm):
+    role: Role

@@ -8,13 +8,14 @@ from dishka import AsyncContainer
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.application.forms.user import UserForm
+from backend.application.forms.user import AdminUserForm, UpdateUserForm, UserForm
 from backend.bootstrap.di.container import get_async_container
-from backend.domain.misc_types import Gender, MaritalStatus
+from backend.domain.misc_types import Gender, MaritalStatus, Role
 from backend.infrastructure.api.api_client import AntiFraudApiClient
 from backend.infrastructure.auth.hasher import Hasher
 from backend.infrastructure.auth.idp.token_processor import AccessTokenProcessor
 from backend.infrastructure.auth.login import WebLoginForm
+from backend.infrastructure.config_loader import Config
 from tests.utils.misc_types import AuthorizedUser
 
 
@@ -31,29 +32,38 @@ async def session(async_container: AsyncContainer) -> AsyncIterator[AsyncSession
         yield (await r.get(AsyncSession))
 
 
+@pytest.fixture
+async def config(async_container: AsyncContainer) -> AsyncIterator[Config]:
+    async with async_container() as r:
+        yield (await r.get(Config))
+
+
 @pytest.fixture(autouse=True)
-async def gracefully_teardown(
-    session: AsyncSession,
-) -> AsyncIterable[None]:
+async def gracefully_teardown(session: AsyncSession, config: Config) -> AsyncIterable[None]:
     yield
     await session.execute(
-        text("""
+        text(f"""
             DO $$
             DECLARE
                 tb text;
+                mail text := '{config.admin.admin_email}';
             BEGIN
                 FOR tb IN (
                     SELECT tablename
                     FROM pg_catalog.pg_tables
                     WHERE schemaname = 'public'
                     AND tablename != 'alembic_version'
+                    AND tablename != 'user_table'
                 )
                 LOOP
-                    EXECUTE 'TRUNCATE TABLE ' || tb || ' CASCADE';
+                    EXECUTE 'TRUNCATE TABLE ' || quote_ident(tb) || ' CASCADE';
                 END LOOP;
+
+                EXECUTE 'DELETE FROM user_table WHERE email != $1' USING mail;
             END $$;
-        """),
+        """),  # noqa: S608
     )
+
     await session.commit()
 
 
@@ -113,3 +123,52 @@ async def authorized_user(
     user_form: UserForm,
 ) -> AuthorizedUser:
     return (await api_client.register(user_form)).expect_status(201).unwrap()
+
+
+@pytest.fixture
+async def admin_user(
+    api_client: AntiFraudApiClient,
+    login_form: WebLoginForm,
+    config: Config,
+) -> AuthorizedUser:
+    login_form.email = config.admin.admin_email
+    login_form.password = config.admin.admin_password
+
+    return (await api_client.login(login_form)).expect_status(200).unwrap()
+
+
+@pytest.fixture
+async def another_authorized_user(
+    api_client: AntiFraudApiClient,
+    user_form: UserForm,
+) -> AuthorizedUser:
+    user_form.email = "uuuuuuu@example.com"
+    return (await api_client.register(user_form)).expect_status(201).unwrap()
+
+
+@pytest.fixture
+def update_user_form() -> UpdateUserForm:
+    form = UpdateUserForm(
+        fullName="IvanU IvanovU",
+        age=30,
+        region="RU-SPB",
+        gender=None,
+        maritalStatus=MaritalStatus.SINGLE,
+    )
+    return form
+
+
+@pytest.fixture
+def admin_user_form() -> AdminUserForm:
+    form = AdminUserForm(
+        email="newuser@example.com",
+        password="Qwerty_123!!!",
+        fullName="New User",
+        age=25,
+        region="RU-MOW",
+        gender=Gender.MALE,
+        maritalStatus=MaritalStatus.SINGLE,
+        role=Role.ADMIN,
+    )
+
+    return form

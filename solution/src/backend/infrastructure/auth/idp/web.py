@@ -6,11 +6,10 @@ from jwt import PyJWTError
 
 from backend.application.common.gateway.user import UserGateway
 from backend.application.common.idp import UserIdProvider
-from backend.application.exception.user import InactiveUserError
+from backend.application.exception.base import UnauthorizedError
 from backend.domain.entity.user import User
 from backend.domain.misc_types import Role
 from backend.infrastructure.auth.access_token import AccessToken
-from backend.infrastructure.auth.exception import UnauthorizedError
 from backend.infrastructure.auth.idp.token_parser import AccessTokenParser
 from backend.infrastructure.auth.idp.token_processor import AccessTokenProcessor
 
@@ -71,9 +70,6 @@ class WebUserIdProvider(UserIdProvider):
 
             if user is None:
                 raise UnauthorizedError
-
-            if user.is_active is False:
-                raise InactiveUserError
 
             self.user = user
 

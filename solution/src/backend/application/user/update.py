@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from uuid import UUID
 
 from backend.application.common.decorator import interactor
@@ -39,6 +40,7 @@ class UpdateUser:
         user.region = form.region
         user.gender = form.gender
         user.marital_status = form.marital_status
+        user.updated_at = datetime.now(tz=UTC)
 
         if form.role is not None:
             user.role = form.role

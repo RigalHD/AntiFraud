@@ -22,18 +22,19 @@ class SAUserGateway(UserGateway):
     async def get_by_email(self, email: str) -> User | None:
         stmt = select(User).where(user_table.c.email == email)
         res = await self.session.execute(stmt)
+
         return res.scalar()
 
-    async def get_many(self, offset: int, limit: int, desc: bool = True) -> Sequence[User]:
-        stmt = select(User).offset(offset).limit(limit)
-
-        stmt = stmt.order_by(user_table.c.created_at.desc()) if desc else stmt.order_by(user_table.c.created_at.asc())
+    async def get_many(self, offset: int, size: int) -> Sequence[User]:
+        stmt = select(User).offset(offset).limit(size)
+        stmt = stmt.order_by(user_table.c.created_at.asc())
 
         res = await self.session.execute(stmt)
+
         return res.scalars().all()
 
     async def get_count(self) -> int | None:
         stmt = select(func.count()).select_from(user_table)
-
         res = await self.session.execute(stmt)
+
         return res.scalar()
