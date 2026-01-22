@@ -38,13 +38,14 @@ class ReadUsers:
     gateway: UserGateway
     idp: UserIdProvider
 
-    async def execute(self, form: PagginationForm) -> Users:
+    async def execute(self, size: int, page: int) -> Users:
         viewer = await self.idp.get_user()
-
-        offset = form.page * form.size
 
         if viewer.role != Role.ADMIN:
             raise ForbiddenError
+
+        form = PagginationForm(size=size, page=page)
+        offset = form.page * form.size
 
         users = await self.gateway.get_many(offset=offset, size=form.size)
         total = await self.gateway.get_count()

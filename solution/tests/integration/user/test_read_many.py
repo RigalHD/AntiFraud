@@ -46,7 +46,7 @@ async def test_ok(
         assert user.created_at == dict_user.created_at
 
     expected_users = sorted(users_dict.values(), key=lambda u: u.created_at)
-    
+
     assert seen_ids == set(users_dict.keys())
     assert users.items == expected_users
 

@@ -5,7 +5,6 @@ from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
-from backend.application.forms.paggination import PagginationForm
 from backend.application.forms.user import AdminUserForm, UpdateUserForm
 from backend.application.user.create import CreateAdminUser
 from backend.application.user.delete import DeleteUser
@@ -41,9 +40,8 @@ async def read_user(interactor: FromDishka[ReadUser]) -> JSONResponse:
 
 
 @users_router.get("/")
-async def read_users(interactor: FromDishka[ReadUsers], page: int = 0, size: int = 20) -> JSONResponse:
-    form = PagginationForm(page=page, size=size)
-    result = await interactor.execute(form)
+async def read_many(interactor: FromDishka[ReadUsers], page: int = 0, size: int = 20) -> JSONResponse:
+    result = await interactor.execute(page=page, size=size)
 
     return JSONResponse(
         content=serializer.dump(result),
