@@ -6,6 +6,7 @@ from pydantic import ValidationError
 
 from backend.application.exception.base import ApplicationError
 from backend.application.exception.user import EmailAlreadyExistsError
+from backend.infrastructure.api.exception import InternalServerError
 from backend.presentation.web.fastapi.auth import auth_router
 from backend.presentation.web.fastapi.exc_handler import (
     app_error_handler,
@@ -22,6 +23,7 @@ def include_routers(app: FastAPI) -> None:
 
 
 def include_exception_handlers(app: FastAPI) -> None:
+    app.add_exception_handler(InternalServerError, internal_server_error_handler)
     app.add_exception_handler(EmailAlreadyExistsError, email_already_exists_error_handler)  # type: ignore
     app.add_exception_handler(ValidationError, validation_error_handler)  # type: ignore
     app.add_exception_handler(JSONDecodeError, app_error_handler)
