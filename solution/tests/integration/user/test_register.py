@@ -19,15 +19,11 @@ async def test_ok(
     hasher: Hasher,
     access_token_processor: AccessTokenProcessor,
 ) -> None:
-    resp = await api_client.register(user_form)
+    data = (await api_client.register(user_form)).expect_status(201).unwrap()
 
-    assert resp.http_response.status == 201
-    assert resp.data is not None
-    assert resp.error_data is None
-
-    access_token = resp.data.access_token
-    expires_in = resp.data.expires_in
-    user = resp.data.user
+    access_token = data.access_token
+    expires_in = data.expires_in
+    user = data.user
 
     assert user.email == user_form.email
     assert hasher.verify(user_form.password, user.password)
@@ -51,19 +47,11 @@ async def test_twice(
     api_client: AntiFraudApiClient,
     user_form: UserForm,
 ) -> None:
-    resp = await api_client.register(user_form)
+    (await api_client.register(user_form)).expect_status(201).unwrap()
 
-    assert resp.http_response.status == 201
-    assert resp.data is not None
-    assert resp.error_data is None
+    error_data = (await api_client.register(user_form)).expect_status(409).err_unwrap()
 
-    resp = await api_client.register(user_form)
-
-    assert resp.http_response.status == 409
-    assert resp.data is None
-    assert resp.error_data is not None
-
-    validate_exception(resp, EmailAlreadyExistsError)
+    validate_exception(error_data, EmailAlreadyExistsError)
 
 
 @pytest.mark.parametrize(
@@ -82,10 +70,6 @@ async def test_validation_error(
         user_form.password = password
         invalid_fields["password"] = password
 
-    resp = await api_client.register(user_form)
+    error_data = (await api_client.register(user_form)).expect_status(422).err_unwrap()
 
-    assert resp.http_response.status == 422
-    assert resp.data is None
-    assert resp.error_data is not None
-
-    validate_validation_error(resp, ValidationError, invalid_fields)
+    validate_validation_error(error_data, ValidationError, invalid_fields)

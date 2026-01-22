@@ -101,19 +101,35 @@ class PingResponse:
 
 
 @dataclass(slots=True, frozen=True)
+class UnwrappedErrorData:
+    http_response: HttpResponse
+    error_data: ApiErrorResponse
+
+
+@dataclass(slots=True, frozen=True)
 class APIResponse[T]:
     data: T | None
     http_response: HttpResponse
     error_data: ApiErrorResponse | None
 
-    def compare_status(self, expected_status: int) -> Self:
+    def expect_status(self, expected_status: int) -> Self:
         if (response_status := self.http_response.status) != expected_status:
             message = f"Ожидаемый статус: {expected_status}, полученный: {response_status}"
             raise StatusMismatchError(message)
+
         return self
 
     def unwrap(self) -> T:
-        if self.data is None:
-            raise UnableToUnwrapError
+        if self.data is not None and self.error_data is None:
+            return self.data
 
-        return self.data
+        raise UnableToUnwrapError
+
+    def err_unwrap(self) -> UnwrappedErrorData:
+        if self.data is None and self.error_data is not None:
+            return UnwrappedErrorData(
+                http_response=self.http_response,
+                error_data=self.error_data,
+            )
+
+        raise UnableToUnwrapError

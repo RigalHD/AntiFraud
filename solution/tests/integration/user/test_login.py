@@ -1,75 +1,93 @@
-# from datetime import UTC, datetime
-# from backend.application.exception.user import EmailAlreadyExistsError
-# from backend.application.forms.user import UserForm
-# from backend.domain.misc_types import Role
-# from backend.infrastructure.api.api_client import AntiFraudApiClient
-# from backend.infrastructure.auth.hasher import Hasher
-# from backend.infrastructure.auth.idp.token_processor import AccessTokenProcessor
-# from backend.infrastructure.auth.login import WebLoginForm
+from datetime import UTC, datetime
 
-# from tests.utils.exception_validation import validate_exception
+from pydantic import ValidationError
+import pytest
 
+from tests.utils.exception_validation import validate_exception, validate_validation_error
+from tests.utils.misc_types import AuthorizedUser, TestField
 
-# async def test_ok(
-#     api_client: AntiFraudApiClient,
-#     user_form: UserForm,
-#     login_form: WebLoginForm,
-#     hasher: Hasher,
-#     access_token_processor: AccessTokenProcessor,
-# ) -> None:
-#     register_resp = await api_client.register(user_form)
-
-#     assert register_resp.http_response.status == 201
-#     assert register_resp.data is not None
-#     assert register_resp.error_data is None
-
-#     login_resp = await api_client.login(login_form)
-
-#     assert login_resp.http_response.status == 200
-#     assert login_resp.data is not None
-#     assert login_resp.error_data is None
-
-#     access_token = login_resp.data.access_token
-#     expires_in = login_resp.data.expires_in
-#     user = login_resp.data.user
-
-#     assert user.email == user_form.email
-#     assert hasher.verify(user_form.password, user.password)
-#     assert user.full_name == user_form.full_name
-#     assert user.region == user_form.region
-#     assert user.gender == user_form.gender
-#     assert user.marital_status == user_form.marital_status
-#     assert user.role == Role.USER
-#     assert user.is_active == True
-
-#     decoded_token = access_token_processor.decode(access_token)
-
-#     assert isinstance(decoded_token, dict)
-#     assert decoded_token["sub"] == str(user.id)
-#     assert decoded_token["exp"] == expires_in
-#     assert decoded_token["exp"] + decoded_token["iat"] >= int(datetime.now(tz=UTC).timestamp())
-#     assert decoded_token["role"] == Role.USER.value
-
-#     assert register_resp.data.access_token == login_resp.data.access_token
+from backend.infrastructure.api.api_client import AntiFraudApiClient
+from backend.infrastructure.auth.hasher import Hasher
+from backend.infrastructure.auth.idp.token_processor import AccessTokenProcessor
+from backend.infrastructure.auth.login import WebLoginForm
+from backend.infrastructure.auth.exception import UnauthorizedError
 
 
-# async def test_invalid_password(
-#     api_client: AntiFraudApiClient,
-#     user_form: UserForm,
-# ) -> None:
-#     resp = await api_client.register(user_form)
+async def test_ok(
+    api_client: AntiFraudApiClient,
+    authorized_user: AuthorizedUser,
+    login_form: WebLoginForm,
+    access_token_processor: AccessTokenProcessor,
+) -> None:
+    data = (await api_client.login(login_form)).expect_status(200).unwrap()
 
-#     assert resp.http_response.status == 201
-#     assert resp.data is not None
-#     assert resp.error_data is None
+    user = authorized_user.user
+    
+    access_token = data.access_token
+    expires_in = data.expires_in
+    resp_user = data.user
 
-#     resp = await api_client.register(user_form)
+    assert resp_user.email == user.email
+    assert resp_user.password == user.password
+    assert resp_user.full_name == user.full_name
+    assert resp_user.region == user.region
+    assert resp_user.gender == user.gender
+    assert resp_user.marital_status == user.marital_status
+    assert resp_user.role == user.role
+    assert resp_user.is_active is True
 
-#     assert resp.http_response.status == 409
-#     assert resp.data is None
-#     assert resp.error_data is not None
+    decoded_token = access_token_processor.decode(access_token)
 
-#     validate_exception(resp, EmailAlreadyExistsError)
+    assert isinstance(decoded_token, dict)
+    assert decoded_token["sub"] == str(resp_user.id)
+    assert decoded_token["exp"] == expires_in
+    assert decoded_token["exp"] + decoded_token["iat"] >= int(datetime.now(tz=UTC).timestamp())
+    assert decoded_token["role"] == user.role.value
+
+    assert data.access_token == authorized_user.access_token
 
 
-# !!! ДОБАВИТЬ ЮЗЕРА В ФИКСТУРЫ И ИСПОЛЬЗОВАТЬ .unwrap()
+@pytest.mark.parametrize(
+    ("email", "password"),
+    [
+        (TestField.USE_DEFAULT, TestField.CHANGE_IN_TEST),
+        (TestField.CHANGE_IN_TEST, TestField.USE_DEFAULT),
+        (TestField.CHANGE_IN_TEST, TestField.CHANGE_IN_TEST),
+    ],
+)
+async def test_invalid_auth_data(
+    api_client: AntiFraudApiClient,
+    authorized_user: AuthorizedUser,  # не трогать. Это нужно, чтобы автоматически зарегало пользователя
+    login_form: WebLoginForm,
+    email: TestField,
+    password: TestField,
+) -> None:
+    if email == TestField.CHANGE_IN_TEST:
+        login_form.email = "a" + login_form.email 
+    if password == TestField.CHANGE_IN_TEST:
+        login_form.password += "a"
+        
+    error_data = (await api_client.login(login_form)).expect_status(401).err_unwrap()
+    validate_exception(error_data, UnauthorizedError)
+    
+    
+@pytest.mark.parametrize(
+    ("email", "password"),
+    [("1", TestField.USE_DEFAULT), ("a" * 255 + "@example.com", "a" * 73)],
+)
+async def test_validation_error(
+    api_client: AntiFraudApiClient,
+    authorized_user: AuthorizedUser,
+    login_form: WebLoginForm,
+    email: str,
+    password: str | TestField,
+) -> None:
+    invalid_fields = {"email": email}
+    login_form.email = email
+    if isinstance(password, str):
+        login_form.password = password
+        invalid_fields["password"] = password
+
+    error_data = (await api_client.login(login_form)).expect_status(422).err_unwrap()
+
+    validate_validation_error(error_data, ValidationError, invalid_fields)

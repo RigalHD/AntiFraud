@@ -4,19 +4,12 @@ from tests.utils.exception_validation import validate_exception
 
 
 async def test_ok(api_client: AntiFraudApiClient) -> None:
-    resp = await api_client.ping()
+    data = (await api_client.ping()).expect_status(200).unwrap()
 
-    assert resp.http_response.status == 200
-    assert resp.error_data is None
-    assert resp.data is not None
-    assert resp.data.status == "ok"
+    assert data.status == "ok"
 
 
 async def test_internal_server_error_ok(api_client: AntiFraudApiClient) -> None:
-    resp = await api_client.error()
+    error_data = (await api_client.error()).expect_status(500).err_unwrap()
 
-    assert resp.http_response.status == 500
-    assert resp.data is None
-    assert resp.error_data is not None
-
-    validate_exception(resp, InternalServerError)
+    validate_exception(error_data, InternalServerError)

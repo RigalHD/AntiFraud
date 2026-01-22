@@ -44,6 +44,9 @@ include-package-data = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+filterwarnings = [
+    "ignore::pytest.PytestCollectionWarning",
+]
 
 [tool.mypy]
 strict = true

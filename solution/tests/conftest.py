@@ -15,6 +15,7 @@ from backend.infrastructure.api.api_client import AntiFraudApiClient
 from backend.infrastructure.auth.hasher import Hasher
 from backend.infrastructure.auth.idp.token_processor import AccessTokenProcessor
 from backend.infrastructure.auth.login import WebLoginForm
+from tests.utils.misc_types import AuthorizedUser
 
 
 @pytest.fixture
@@ -104,3 +105,11 @@ def login_form() -> WebLoginForm:
         password="Qwerty_123!!!",
     )
     return form
+
+
+@pytest.fixture
+async def authorized_user(
+    api_client: AntiFraudApiClient,
+    user_form: UserForm,
+) -> AuthorizedUser:
+    return (await api_client.register(user_form)).expect_status(201).unwrap()

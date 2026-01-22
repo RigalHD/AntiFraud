@@ -1,20 +1,19 @@
-import logging
 from typing import Any
 
 from pydantic import ValidationError
 
 from backend.application.exception.user import EmailAlreadyExistsError
-from backend.infrastructure.api.models import DETAILS, ERROR_CODE, ERROR_MESSAGE, APIResponse
+from backend.infrastructure.api.models import DETAILS, ERROR_CODE, ERROR_MESSAGE, UnwrappedErrorData
 from backend.infrastructure.serialization.base import FieldSkip
 
 
-def validate_exception[T](api_response: APIResponse[T], exc_type: type[Exception]) -> None:
-    error_data = api_response.error_data
+def validate_exception(data: UnwrappedErrorData, exc_type: type[Exception]) -> None:
+    error_data = data.error_data
 
     assert error_data is not None
     assert error_data.code == ERROR_CODE[exc_type]
     assert error_data.message == ERROR_MESSAGE[exc_type]
-    assert error_data.path == "/api/v1/" + api_response.http_response.url
+    assert error_data.path == "/api/v1/" + data.http_response.url
 
     if exc_type not in (EmailAlreadyExistsError,):
         assert error_data.details == DETAILS.get(exc_type, FieldSkip.SKIP)
@@ -27,20 +26,19 @@ def validate_exception[T](api_response: APIResponse[T], exc_type: type[Exception
         }
 
 
-def validate_validation_error[T](
-    api_response: APIResponse[T],
+def validate_validation_error(
+    data: UnwrappedErrorData,
     exc_type: type[ValidationError],
     invalid_fields: dict[str, Any],
 ) -> None:
-    validate_exception(api_response, exc_type)
+    validate_exception(data, exc_type)
 
-    error_data = api_response.error_data
-    logging.critical(invalid_fields.keys())
+    error_data = data.error_data
+
     assert error_data is not None
     assert isinstance(error_data.field_errors, list)
     assert len(error_data.field_errors) == len(invalid_fields.keys())
-    
-    
+
     for field_info in error_data.field_errors:
         value = invalid_fields.get(field_info.field)
         assert value is not None
