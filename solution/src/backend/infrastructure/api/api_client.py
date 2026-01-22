@@ -34,7 +34,7 @@ class ApiResponseTransformer(BaseResponseTransformer):
         data = None
         http_response = {
             "status": response.status_code,
-            "url": request.url,
+            "url": request.url.rstrip("/"),
         }
         error_data = None
 

@@ -69,6 +69,7 @@ DETAILS: dict[type[Exception], dict[str, str | int]] = {
 
 @dataclass(slots=True)
 class ApiErrorResponse:
+    # Обязательно при инициализации нужно отрезать слеш в конце
     code: str
     message: str
     timestamp: datetime
@@ -84,7 +85,7 @@ class ApiErrorResponse:
             message=ERROR_MESSAGE[exc_type],
             trace_id=uuid4(),
             timestamp=datetime.now(tz=UTC),
-            path=path,
+            path=path.rstrip("/"),
             details=DETAILS.get(exc_type, FieldSkip.SKIP),
         )
 
