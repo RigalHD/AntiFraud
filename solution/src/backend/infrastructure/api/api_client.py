@@ -13,8 +13,10 @@ from descanso.response import BaseResponseTransformer
 from descanso.response import HttpResponse as DescansoHttpResponse
 from descanso.response_transformers import ErrorRaiser
 
+from backend.application.forms.fraud_rule import FraudRuleForm, UpdateFraudRuleForm
 from backend.application.forms.user import AdminUserForm, UpdateUserForm, UserForm
-from backend.application.user.dto import Users
+from backend.application.user.dto import UsersList
+from backend.domain.entity.fraud_rule import FraudRule
 from backend.domain.entity.user import User
 from backend.infrastructure.api.models import APIResponse, PingResponse
 from backend.infrastructure.auth.login import WebLoginForm
@@ -110,7 +112,7 @@ class AntiFraudApiClient(AiohttpClient):
         raise NotImplementedError
 
     @rest.get("users/", error_raiser=ErrorRaiser(except_codes=(200, 401, 403, 422)))
-    def read_users(self, page: int = 0, size: int = 20) -> APIResponse[Users]:
+    def read_users(self, page: int = 0, size: int = 20) -> APIResponse[UsersList]:
         raise NotImplementedError
 
     @rest.get("users/{id}", error_raiser=ErrorRaiser(except_codes=(200, 401, 404, 403)))
@@ -127,4 +129,24 @@ class AntiFraudApiClient(AiohttpClient):
 
     @rest.delete("users/{id}", error_raiser=ErrorRaiser(except_codes=(204, 401, 403, 404)))
     def delete_user(self, id: UUID) -> APIResponse[None]:
+        raise NotImplementedError
+
+    @rest.post("fraud-rules/", error_raiser=ErrorRaiser(except_codes=(201, 401, 403, 409, 422)))
+    def create_fraud_rule(self, body: FraudRuleForm) -> APIResponse[FraudRule]:
+        raise NotImplementedError
+
+    @rest.get("fraud-rules/", error_raiser=ErrorRaiser(except_codes=(200, 401, 403)))
+    def read_fraud_rules(self) -> APIResponse[list[FraudRule]]:
+        raise NotImplementedError
+
+    @rest.get("fraud-rules/{id}", error_raiser=ErrorRaiser(except_codes=(200, 401, 403, 404)))
+    def read_fraud_rule(self, id: UUID) -> APIResponse[FraudRule]:
+        raise NotImplementedError
+
+    @rest.put("fraud-rules/{id}", error_raiser=ErrorRaiser(except_codes=(200, 401, 403, 404, 409, 422)))
+    def update_fraud_rule(self, id: UUID, body: UpdateFraudRuleForm) -> APIResponse[FraudRule]:
+        raise NotImplementedError
+
+    @rest.delete("fraud-rules/{id}", error_raiser=ErrorRaiser(except_codes=(204, 401, 403, 404)))
+    def delete_fraud_rule(self, id: UUID) -> APIResponse[None]:
         raise NotImplementedError

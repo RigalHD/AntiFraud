@@ -4,10 +4,10 @@ setup docker:
     docker network create antifraud-net
 
 stop:
-    docker stop app postgres redis
+    docker stop app postgres
 
 clear:
-    docker rm -f app postgres redis
+    docker rm -f app postgres
 
 lint:
     ruff format
