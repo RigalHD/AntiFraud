@@ -11,9 +11,16 @@ from pydantic import ValidationError
 from backend.application.exception.base import (
     ApplicationError,
     ForbiddenError,
-    InvalidPaginationQueryError,
     NotFoundError,
     UnauthorizedError,
+)
+from backend.application.exception.fraud_rule import (
+    DSLError,
+    DSLInvalidFieldError,
+    DSLInvalidOperatorError,
+    DSLParseError,
+    FraudRuleDoesNotExistError,
+    FraudRuleNameAlreadyExistsError,
 )
 from backend.application.exception.user import EmailAlreadyExistsError, InactiveUserError, UserDoesNotExistError
 from backend.infrastructure.api.exception import InternalServerError, StatusMismatchError, UnableToUnwrapError
@@ -27,25 +34,35 @@ ERROR_HTTP_CODE = {
     EmailAlreadyExistsError: 409,
     UserDoesNotExistError: 404,
     UnauthorizedError: 401,
-    InvalidPaginationQueryError: 422,
     JSONDecodeError: 400,
     InactiveUserError: 423,
     ValidationError: 422,
     InternalServerError: 500,
+    FraudRuleNameAlreadyExistsError: 409,
+    FraudRuleDoesNotExistError: 404,
+    DSLError: 422,
+    DSLParseError: 422,
+    DSLInvalidFieldError: 422,
+    DSLInvalidOperatorError: 422,
 }
 
 ERROR_MESSAGE = {
-    ApplicationError: "Unhanded application error",
+    ApplicationError: "Ошибка приложения",
     InternalServerError: "Внутренняя ошибка сервера",
     NotFoundError: "Ресурс не найден",
     ForbiddenError: "Недостаточно прав для выполнения операции",
-    EmailAlreadyExistsError: "Пользователь с таким email уже существует",
-    UserDoesNotExistError: "User does not exist",
+    EmailAlreadyExistsError: "Токен отсутствует/невалиден/истёк; неверный email или пароль в /auth/login",
+    UserDoesNotExistError: "Ресурс не найден",
     UnauthorizedError: "Токен отсутствует или невалиден",
-    InvalidPaginationQueryError: "Limit or offset < 0",
-    JSONDecodeError: "Невалидный JSON",
+    JSONDecodeError: "Невалидный JSON, неподдерживаемый Content-Type",
     InactiveUserError: "Пользователь деактивирован",
     ValidationError: "Некоторые поля не прошли валидацию",
+    FraudRuleNameAlreadyExistsError: "Правило с таким именем уже существует",
+    FraudRuleDoesNotExistError: "Ресурс не найден",
+    DSLError: "Ошибка в DSL выражении",
+    DSLParseError: "Синтаксическая ошибка",
+    DSLInvalidFieldError: "Неизвестное поле DSL",
+    DSLInvalidOperatorError: "Оператор неприменим к типу",
 }
 
 ERROR_CODE = {
@@ -56,10 +73,15 @@ ERROR_CODE = {
     EmailAlreadyExistsError: "EMAIL_ALREADY_EXISTS",
     UserDoesNotExistError: "NOT_FOUND",
     UnauthorizedError: "UNAUTHORIZED",
-    InvalidPaginationQueryError: "INVALID_PAGINATION_QUERY",
     JSONDecodeError: "BAD_REQUEST",
     InactiveUserError: "USER_INACTIVE",
     ValidationError: "VALIDATION_FAILED",
+    FraudRuleNameAlreadyExistsError: "RULE_NAME_ALREADY_EXISTS",
+    FraudRuleDoesNotExistError: "NOT_FOUND",
+    DSLError: "DSL_ERROR",
+    DSLParseError: "DSL_PARSE_ERROR",
+    DSLInvalidFieldError: "DSL_INVALID_FIELD",
+    DSLInvalidOperatorError: "DSL_INVALID_OPERATOR",
 }
 
 DETAILS: dict[type[Exception], dict[str, str | int]] = {
@@ -69,7 +91,7 @@ DETAILS: dict[type[Exception], dict[str, str | int]] = {
 
 @dataclass(slots=True)
 class ApiErrorResponse:
-    # Обязательно при инициализации нужно отрезать слеш в конце
+    # Обязательно при инициализации нужно отрезать слеш в конце path
     code: str
     message: str
     timestamp: datetime

@@ -1,5 +1,10 @@
 from dishka import Provider, Scope, provide_all
 
+from backend.application.fraud_rule.create import CreateFraudRule
+from backend.application.fraud_rule.delete import DeleteFraudRule
+from backend.application.fraud_rule.read import ReadFraudRule, ReadFraudRules
+from backend.application.fraud_rule.update import UpdateFraudRule
+from backend.application.fraud_rule.validate_dsl import ValidateDSL
 from backend.application.user.create import CreateAdminUser, CreateUser
 from backend.application.user.delete import DeleteUser
 from backend.application.user.read import ReadUser, ReadUsers
@@ -23,4 +28,10 @@ class CommandProvider(Provider):
         ReadUsers,
         UpdateUser,
         DeleteUser,
+        CreateFraudRule,
+        ReadFraudRule,
+        ReadFraudRules,
+        UpdateFraudRule,
+        DeleteFraudRule,
+        ValidateDSL,
     )

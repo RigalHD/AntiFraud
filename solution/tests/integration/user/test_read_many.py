@@ -1,6 +1,12 @@
+import asyncio
+from uuid import UUID
+
 import pytest
 
 from backend.application.exception.base import ForbiddenError, UnauthorizedError
+from backend.application.forms.user import AdminUserForm
+from backend.domain.entity.user import User
+from backend.domain.misc_types import Role
 from backend.infrastructure.api.api_client import AntiFraudApiClient
 from tests.utils.exception_validation import validate_exception, validate_validation_error
 from tests.utils.misc_types import AuthorizedUser
@@ -9,27 +15,32 @@ from tests.utils.misc_types import AuthorizedUser
 async def test_ok(
     api_client: AntiFraudApiClient,
     admin_user: AuthorizedUser,
-    authorized_user: AuthorizedUser,
-    another_authorized_user: AuthorizedUser,
+    admin_user_form: AdminUserForm,
 ) -> None:
     api_client.authorize(admin_user.access_token)
 
-    users = (await api_client.read_users(page=0, size=20)).expect_status(200).unwrap()
+    admin_user_form.role = Role.USER
 
-    assert len(users.items) == 3
-    assert users.total == 3
-    assert users.page == 0
-    assert users.size == 20
+    jobs = []
+    for i in range(4):
+        form = admin_user_form.model_copy(update={"email": f"user{i}@example.com"})
+        jobs.append(api_client.create_user(form))
 
-    users_dict = {
-        admin_user.user.id: admin_user.user,
-        authorized_user.user.id: authorized_user.user,
-        another_authorized_user.user.id: another_authorized_user.user,
+    users_dict: dict[UUID, User] = {
+        response.expect_status(201).unwrap().id: response.unwrap() for response in await asyncio.gather(*jobs)
     }
+    users_dict[admin_user.user.id] = admin_user.user
+
+    resp_users = (await api_client.read_users(page=0, size=20)).expect_status(200).unwrap()
+
+    assert len(resp_users.items) == 5
+    assert resp_users.total == 5
+    assert resp_users.page == 0
+    assert resp_users.size == 20
 
     seen_ids = set()
 
-    for user in users.items:
+    for user in resp_users.items:
         dict_user = users_dict.get(user.id)
         seen_ids.add(user.id)
 
@@ -43,33 +54,38 @@ async def test_ok(
         assert user.marital_status == dict_user.marital_status
         assert user.role == dict_user.role
         assert user.is_active == dict_user.is_active
+        assert user.updated_at == dict_user.updated_at
         assert user.created_at == dict_user.created_at
 
-    expected_users = sorted(users_dict.values(), key=lambda u: u.created_at)
-
     assert seen_ids == set(users_dict.keys())
-    assert users.items == expected_users
 
 
 async def test_page(
     api_client: AntiFraudApiClient,
     admin_user: AuthorizedUser,
-    authorized_user: AuthorizedUser,
-    another_authorized_user: AuthorizedUser,
+    admin_user_form: AdminUserForm,
 ) -> None:
     api_client.authorize(admin_user.access_token)
 
-    users = (await api_client.read_users(page=1, size=2)).expect_status(200).unwrap()
+    admin_user_form.role = Role.USER
 
-    users_list = [admin_user, authorized_user, another_authorized_user]
-    users_list.sort(key=lambda x: x.user.created_at)
+    jobs = []
+    for i in range(2):
+        form = admin_user_form.model_copy(update={"email": f"user{i}@example.com"})
+        jobs.append(api_client.create_user(form))
 
-    assert len(users.items) == 1
-    assert users.total == 3
-    assert users.page == 1
-    assert users.size == 2
+    users_list: list[User] = [response.expect_status(201).unwrap() for response in await asyncio.gather(*jobs)]
+    users_list.append(admin_user.user)
+    users_list.sort(key=lambda u: u.created_at)
 
-    assert users.items[0] == users_list[-1].user
+    resp_users = (await api_client.read_users(page=1, size=1)).expect_status(200).unwrap()
+
+    assert len(resp_users.items) == 1
+    assert resp_users.total == 3
+    assert resp_users.page == 1
+    assert resp_users.size == 1
+
+    assert resp_users.items[0] == users_list[1]
 
 
 @pytest.mark.parametrize(

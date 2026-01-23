@@ -2,6 +2,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from backend.application.exception.fraud_rule import FraudRuleNameAlreadyExistsError
 from backend.application.exception.user import EmailAlreadyExistsError
 from backend.infrastructure.api.models import DETAILS, ERROR_CODE, ERROR_MESSAGE, UnwrappedErrorData
 from backend.infrastructure.serialization.base import FieldSkip
@@ -15,13 +16,20 @@ def validate_exception(data: UnwrappedErrorData, exc_type: type[Exception]) -> N
     assert error_data.message == ERROR_MESSAGE[exc_type]
     assert error_data.path == "/api/v1/" + data.http_response.url
 
-    if exc_type not in (EmailAlreadyExistsError,):
+    if exc_type not in (EmailAlreadyExistsError, FraudRuleNameAlreadyExistsError):
         assert error_data.details == DETAILS.get(exc_type, FieldSkip.SKIP)
 
     if exc_type == EmailAlreadyExistsError:
         assert isinstance(error_data.details, dict)
         assert error_data.details == {
             "field": "email",
+            "value": error_data.details["value"],
+        }
+
+    if exc_type == FraudRuleNameAlreadyExistsError:
+        assert isinstance(error_data.details, dict)
+        assert error_data.details == {
+            "field": "name",
             "value": error_data.details["value"],
         }
 

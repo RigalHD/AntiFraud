@@ -6,7 +6,7 @@ from backend.application.common.idp import UserIdProvider
 from backend.application.exception.base import ForbiddenError
 from backend.application.exception.user import UserDoesNotExistError
 from backend.application.forms.paggination import PagginationForm
-from backend.application.user.dto import Users
+from backend.application.user.dto import UsersList
 from backend.domain.entity.user import User
 from backend.domain.misc_types import Role
 
@@ -38,7 +38,7 @@ class ReadUsers:
     gateway: UserGateway
     idp: UserIdProvider
 
-    async def execute(self, size: int, page: int) -> Users:
+    async def execute(self, size: int, page: int) -> UsersList:
         viewer = await self.idp.get_user()
 
         if viewer.role != Role.ADMIN:
@@ -50,4 +50,4 @@ class ReadUsers:
         users = await self.gateway.get_many(offset=offset, size=form.size)
         total = await self.gateway.get_count()
 
-        return Users(items=list(users), total=total or 0, page=form.page, size=form.size)
+        return UsersList(items=list(users), total=total or 0, page=form.page, size=form.size)

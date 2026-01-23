@@ -8,8 +8,10 @@ from dishka import AsyncContainer
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.application.forms.fraud_rule import DSLValidationForm, FraudRuleForm, UpdateFraudRuleForm
 from backend.application.forms.user import AdminUserForm, UpdateUserForm, UserForm
 from backend.bootstrap.di.container import get_async_container
+from backend.domain.entity.fraud_rule import FraudRule
 from backend.domain.misc_types import Gender, MaritalStatus, Role
 from backend.infrastructure.api.api_client import AntiFraudApiClient
 from backend.infrastructure.auth.hasher import Hasher
@@ -159,6 +161,36 @@ def update_user_form() -> UpdateUserForm:
 
 
 @pytest.fixture
+def fraud_rule_form() -> FraudRuleForm:
+    form = FraudRuleForm(
+        name="Test Fraud Rule",
+        description="A test rule for fraud detection",
+        dslExpression="amount > 10",
+        priority=1,
+        enabled=True,
+    )
+    return form
+
+
+@pytest.fixture
+def dsl_validation_form() -> DSLValidationForm:
+    form = DSLValidationForm(dslExpression="amount > 10")
+    return form
+
+
+@pytest.fixture
+def update_fraud_rule_form() -> UpdateFraudRuleForm:
+    form = UpdateFraudRuleForm(
+        name="Updated Fraud Rule",
+        description="Updated description",
+        dslExpression="amount < 10",
+        priority=2,
+        enabled=False,
+    )
+    return form
+
+
+@pytest.fixture
 def admin_user_form() -> AdminUserForm:
     form = AdminUserForm(
         email="newuser@example.com",
@@ -172,3 +204,18 @@ def admin_user_form() -> AdminUserForm:
     )
 
     return form
+
+
+@pytest.fixture
+async def fraud_rule(
+    fraud_rule_form: FraudRuleForm,
+    api_client: AntiFraudApiClient,
+    admin_user: AuthorizedUser,
+) -> FraudRule:
+    api_client.authorize(admin_user.access_token)
+
+    fraud_rule = (await api_client.create_fraud_rule(fraud_rule_form)).expect_status(201).unwrap()
+
+    api_client.reset_authorization()
+
+    return fraud_rule

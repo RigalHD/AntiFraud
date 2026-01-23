@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Sequence
 from dataclasses import dataclass
 from uuid import UUID
@@ -26,9 +27,15 @@ class SAUserGateway(UserGateway):
         return res.scalar()
 
     async def get_many(self, offset: int, size: int) -> Sequence[User]:
-        stmt = select(User).offset(offset).limit(size)
-        stmt = stmt.order_by(user_table.c.created_at.asc())
-
+        stmt = (
+            select(User)
+            .order_by(
+                user_table.c.created_at.asc(),
+            )
+            .offset(offset)
+            .limit(size)
+        )
+        logging.critical(stmt)
         res = await self.session.execute(stmt)
 
         return res.scalars().all()
