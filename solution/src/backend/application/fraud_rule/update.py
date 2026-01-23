@@ -33,11 +33,12 @@ class UpdateFraudRule:
         if not (fraud_rule := await self.gateway.get_by_id(id)):
             raise FraudRuleDoesNotExistError
 
-        if await self.gateway.get_by_name(form.name):
+        if (rule := (await self.gateway.get_by_name(form.name))) and rule.id != id:
             raise FraudRuleNameAlreadyExistsError(name=form.name)
 
         dsl_info = await self.dsl_validator.execute(
-            form.dsl_expression, temp_validate_anyway=True,
+            form.dsl_expression,
+            temp_validate_anyway=True,
         )  # Временный костыль, чтобы работали тесты
 
         if dsl_info.is_valid is False or dsl_info.normalized_expression is None:

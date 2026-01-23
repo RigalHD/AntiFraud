@@ -1,4 +1,3 @@
-import logging
 from collections.abc import Sequence
 from dataclasses import dataclass
 from uuid import UUID
@@ -35,7 +34,7 @@ class SAUserGateway(UserGateway):
             .offset(offset)
             .limit(size)
         )
-        
+
         res = await self.session.execute(stmt)
 
         return res.scalars().all()
