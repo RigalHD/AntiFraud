@@ -36,11 +36,11 @@ async def validate_dsl(
     interactor: FromDishka[ValidateDSL],
     form: RequestBody[DSLValidationForm],
 ) -> JSONResponse:
-    """DSL поддерживается на уровне 0."""
-    result = interactor.execute(form.data.dsl_expression)
+    """DSL пока поддерживается на уровне 0."""
+    result = await interactor.execute(form.data.dsl_expression)
     return JSONResponse(
         content=serializer.dump(result),
-        status_code=201,
+        status_code=200,
     )
 
 

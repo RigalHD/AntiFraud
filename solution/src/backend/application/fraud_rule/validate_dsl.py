@@ -4,7 +4,6 @@ from backend.application.common.decorator import interactor
 from backend.application.common.idp import UserIdProvider
 from backend.application.common.uow import UoW
 from backend.application.exception.base import ForbiddenError
-from backend.application.exception.fraud_rule import DSLError
 from backend.domain.misc_types import Role
 from backend.domain.service.dsl import is_dsl_valid, normalize_dsl
 
@@ -13,7 +12,7 @@ from backend.domain.service.dsl import is_dsl_valid, normalize_dsl
 class DSLInfo:
     is_valid: bool
     normalized_expression: str | None
-    errors: list[DSLError]
+    errors: list[str]
 
 
 @interactor
@@ -29,7 +28,7 @@ class ValidateDSL:
 
         is_valid = is_dsl_valid(dsl_expression)
         normalized_expression = None
-        errors: list[DSLError] = []  # Реализовать логику добавления ошибок
+        errors: list[str] = []  # Реализовать логику добавления ошибок
 
         if temp_validate_anyway:
             is_valid = True

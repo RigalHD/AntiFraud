@@ -8,7 +8,7 @@ from dishka import AsyncContainer
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.application.forms.fraud_rule import FraudRuleForm, UpdateFraudRuleForm
+from backend.application.forms.fraud_rule import DSLValidationForm, FraudRuleForm, UpdateFraudRuleForm
 from backend.application.forms.user import AdminUserForm, UpdateUserForm, UserForm
 from backend.bootstrap.di.container import get_async_container
 from backend.domain.entity.fraud_rule import FraudRule
@@ -169,6 +169,12 @@ def fraud_rule_form() -> FraudRuleForm:
         priority=1,
         enabled=True,
     )
+    return form
+
+
+@pytest.fixture
+def dsl_validation_form() -> DSLValidationForm:
+    form = DSLValidationForm(dslExpression="amount > 10")
     return form
 
 

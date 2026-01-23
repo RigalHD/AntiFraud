@@ -14,10 +14,17 @@ class FraudRuleDoesNotExistError(ApplicationError): ...
 class DSLError(ApplicationError): ...
 
 
-class DSLParseError(DSLError): ...
+class DSLParseError(DSLError):
+    message: str
+    position: int
+    near: str
 
 
-class DSLInvalidFieldError(DSLError): ...
+class DSLInvalidFieldError(DSLError):
+    message: str
+    field: str
 
 
-class DSLInvalidOperatorError(DSLError): ...
+class DSLInvalidOperatorError(DSLError):
+    operator: str
+    type_: str
