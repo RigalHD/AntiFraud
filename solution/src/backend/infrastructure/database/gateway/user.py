@@ -35,7 +35,7 @@ class SAUserGateway(UserGateway):
             .offset(offset)
             .limit(size)
         )
-        logging.critical(stmt)
+        
         res = await self.session.execute(stmt)
 
         return res.scalars().all()
