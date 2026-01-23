@@ -13,3 +13,7 @@ class FraudRuleForm(BaseForm):
 
 class UpdateFraudRuleForm(FraudRuleForm):
     enabled: bool
+
+
+class DSLValidationForm(BaseForm):
+    dsl_expression: str = Field(alias="dslExpression", min_length=3, max_length=2000)

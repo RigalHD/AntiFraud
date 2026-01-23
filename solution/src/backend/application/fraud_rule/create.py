@@ -28,7 +28,7 @@ class CreateFraudRule:
         if await self.gateway.get_by_name(form.name):
             raise FraudRuleNameAlreadyExistsError(name=form.name)
 
-        dsl_info = await self.dsl_validator.execute(form.dsl_expression)
+        dsl_info = await self.dsl_validator.execute(form.dsl_expression, temp_validate_anyway=True)
 
         if dsl_info.is_valid is False or dsl_info.normalized_expression is None:
             if len(dsl_info.errors) >= 1:

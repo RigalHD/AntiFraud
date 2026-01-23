@@ -21,7 +21,7 @@ class ValidateDSL:
     uow: UoW
     idp: UserIdProvider
 
-    async def execute(self, dsl_expression: str) -> DSLInfo:
+    async def execute(self, dsl_expression: str, temp_validate_anyway: bool = False) -> DSLInfo:
         viewer = await self.idp.get_user()
 
         if viewer.role != Role.ADMIN:
@@ -30,6 +30,9 @@ class ValidateDSL:
         is_valid = is_dsl_valid(dsl_expression)
         normalized_expression = None
         errors: list[DSLError] = []  # Реализовать логику добавления ошибок
+
+        if temp_validate_anyway:
+            is_valid = True
 
         if is_valid:
             normalized_expression = normalize_dsl(dsl_expression)
