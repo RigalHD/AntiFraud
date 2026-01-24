@@ -17,3 +17,13 @@ class FraudRule:
 
     created_at: datetime = field(default_factory=lambda: datetime.now(tz=UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(tz=UTC))
+
+
+@dataclass
+class FraudRuleEvaluationResult:
+    transaction_id: UUID
+    rule_id: UUID
+    rule_name: str
+    priority: int
+    matched: bool
+    description: str

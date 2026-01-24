@@ -16,3 +16,15 @@ class MaritalStatus(Enum):
 class Role(Enum):
     USER = "USER"
     ADMIN = "ADMIN"
+
+
+class TransactionStatus(Enum):
+    APPROVED = "APPROVED"
+    DECLINED = "DECLINED"
+
+
+class TransactionChannel(Enum):
+    WEB = "WEB"
+    MOBILE = "MOBILE"
+    POS = "POS"
+    OTHER = "OTHER"

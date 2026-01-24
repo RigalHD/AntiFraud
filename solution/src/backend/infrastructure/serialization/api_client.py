@@ -7,7 +7,7 @@ from backend.infrastructure.serialization.base import FieldSkip
 
 api_dump_serializer = Retort(
     recipe=[
-        dumper(datetime, lambda x: f"{x.strftime('%Y-%m-%d')}T{x.strftime('%H:%M:%S')}Z"),
+        dumper(datetime, lambda x: x.strftime("%Y-%m-%dT%H:%M:%SZ")),
         dumper(EmailStr, str),
         name_mapping(name_style=NameStyle.CAMEL),
         name_mapping(omit_default=True),

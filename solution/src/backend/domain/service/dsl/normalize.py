@@ -21,6 +21,11 @@ def normalize_ast(node: ASTNode) -> ASTNode:
 
 def ast_to_string(node: ASTNode) -> str:
     if isinstance(node, Comparison):
-        return f"{node.left} {node.operator} {node.right}"
+        right = node.right
+
+        if isinstance(right, str):
+            right = f"'{right}'"
+
+        return f"{node.left} {node.operator} {right}"
 
     return f"{ast_to_string(node.left)} {node.operator} {ast_to_string(node.right)}"

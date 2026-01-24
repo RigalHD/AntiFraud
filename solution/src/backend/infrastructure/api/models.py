@@ -18,6 +18,7 @@ from backend.application.exception.fraud_rule import (
     FraudRuleDoesNotExistError,
     FraudRuleNameAlreadyExistsError,
 )
+from backend.application.exception.transaction import MissingLonOrLatError
 from backend.application.exception.user import EmailAlreadyExistsError, InactiveUserError, UserDoesNotExistError
 from backend.domain.exception.dsl import DSLError, DSLInvalidFieldError, DSLInvalidOperatorError, DSLParseError
 from backend.infrastructure.api.exception import InternalServerError, StatusMismatchError, UnableToUnwrapError
@@ -41,6 +42,7 @@ ERROR_HTTP_CODE = {
     DSLParseError: 422,
     DSLInvalidFieldError: 422,
     DSLInvalidOperatorError: 422,
+    MissingLonOrLatError: 422,
 }
 
 ERROR_MESSAGE = {
@@ -60,6 +62,7 @@ ERROR_MESSAGE = {
     DSLParseError: "Синтаксическая ошибка",
     DSLInvalidFieldError: "Неизвестное поле DSL",
     DSLInvalidOperatorError: "Оператор неприменим к типу",
+    MissingLonOrLatError: "Широта и долгота должны быть только переданны вместе, либо отсутствовать вместе",
 }
 
 ERROR_CODE = {
@@ -79,6 +82,7 @@ ERROR_CODE = {
     DSLParseError: "DSL_PARSE_ERROR",
     DSLInvalidFieldError: "DSL_INVALID_FIELD",
     DSLInvalidOperatorError: "DSL_INVALID_OPERATOR",
+    MissingLonOrLatError: "VALIDATION_FAILED",
 }
 
 DETAILS: dict[type[Exception], dict[str, str | int]] = {

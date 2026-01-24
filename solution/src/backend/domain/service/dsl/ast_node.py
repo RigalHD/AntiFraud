@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import Any, Protocol
 
 
@@ -12,7 +13,7 @@ class ASTNode(Protocol):
 class Comparison(ASTNode):
     left: str
     operator: str
-    right: int | str
+    right: int | str | Decimal
 
 
 @dataclass(slots=True, frozen=True)

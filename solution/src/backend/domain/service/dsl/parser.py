@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from decimal import Decimal, InvalidOperation
 
 from backend.domain.exception.dsl import DSLInvalidFieldError, DSLInvalidOperatorError, DSLParseError
 from backend.domain.service.dsl.ast_node import ASTNode, Comparison, Logical
@@ -6,6 +7,8 @@ from backend.domain.service.dsl.tokens import Token, TokenType
 
 VALID_FIELDS = {"amount", "currency", "merchantId", "ipAddress", "deviceId"}
 STRING_FIELDS = {"currency", "ipAddress", "deviceId", "user.region"}
+DECIMAL_FIELDS = {"amount"}
+NUMERIC_OPERATORS = {"=", "!=", "<", "<=", ">", ">="}
 
 
 @dataclass(slots=True)
@@ -22,9 +25,19 @@ class DSLParser:
         self.pos += 1
         return token
 
-    def parse_value(self, token: Token) -> int | str:
+    def parse_value(self, token: Token) -> Decimal | str:
         if token.token_type == TokenType.NUMBER:
-            return int(token.value)
+            try:
+                return Decimal(token.value)
+            except InvalidOperation:
+                raise DSLParseError(
+                    message="Некорректное числовое значение",
+                    position=token.position,
+                    near=token.value,
+                ) from InvalidOperation
+
+        if token.token_type == TokenType.STRING:
+            return token.value.strip("'")
 
         return token.value
 
@@ -42,14 +55,22 @@ class DSLParser:
 
         if left.value not in VALID_FIELDS:
             raise DSLInvalidFieldError(message=f"Поле неподдерживается: {left.value}")
-        if left.value in STRING_FIELDS and operator.value not in ("=", "!="):
+
+        if (
+            left.value in STRING_FIELDS and operator.value not in ("=", "!=")
+        ) or operator.value not in NUMERIC_OPERATORS:
             raise DSLInvalidOperatorError(message=f"Неподдерживаемая операция {operator.value}")
 
         right_value = self.parse_value(right)
-        if left.value not in STRING_FIELDS and not isinstance(right_value, int):
-            raise DSLInvalidOperatorError(message=f"Неподдерживаемая операция {right_value}")
 
-        return Comparison(left=left.value, operator=operator.value, right=self.parse_value(right))
+        if left.value not in STRING_FIELDS and not isinstance(right_value, Decimal):
+            raise DSLInvalidOperatorError(message=f"Неподдерживаемая операция {operator.value}")
+
+        return Comparison(
+            left=left.value,
+            operator=operator.value,
+            right=right_value,
+        )
 
     def parse_and(self) -> ASTNode:
         node = self.parse_comparison()

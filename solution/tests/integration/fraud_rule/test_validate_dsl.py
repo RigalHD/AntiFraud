@@ -123,6 +123,21 @@ async def test_ok_level_3(
     assert len(dsl_info.errors) == 0
 
 
+async def test_ok_float(
+    api_client: AntiFraudApiClient,
+    admin_user: AuthorizedUser,
+    dsl_validation_form: DSLValidationForm,
+) -> None:
+    api_client.authorize(admin_user.access_token)
+    dsl_validation_form.dsl_expression = "amount > 100.1 AND currency = 'RUB'"
+
+    dsl_info = (await api_client.validate_dsl(dsl_validation_form)).expect_status(200).unwrap()
+
+    assert dsl_info.is_valid is True
+    assert dsl_info.normalized_expression == dsl_validation_form.dsl_expression
+    assert len(dsl_info.errors) == 0
+
+
 async def test_ok_level_3_normalization(
     api_client: AntiFraudApiClient,
     admin_user: AuthorizedUser,
