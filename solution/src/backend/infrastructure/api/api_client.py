@@ -13,7 +13,11 @@ from descanso.response import BaseResponseTransformer
 from descanso.response import HttpResponse as DescansoHttpResponse
 from descanso.response_transformers import ErrorRaiser
 
-from backend.application.forms.fraud_rule import DSLValidationForm, FraudRuleForm, UpdateFraudRuleForm
+from backend.application.forms.fraud_rule import (
+    DSLValidationForm,
+    FraudRuleForm,
+    UpdateFraudRuleForm,
+)
 from backend.application.forms.user import AdminUserForm, UpdateUserForm, UserForm
 from backend.application.fraud_rule.validate_dsl import DSLInfo
 from backend.application.user.dto import UsersList
@@ -144,7 +148,10 @@ class AntiFraudApiClient(AiohttpClient):
     def read_fraud_rule(self, id: UUID) -> APIResponse[FraudRule]:
         raise NotImplementedError
 
-    @rest.put("fraud-rules/{id}", error_raiser=ErrorRaiser(except_codes=(200, 401, 403, 404, 409, 422)))
+    @rest.put(
+        "fraud-rules/{id}",
+        error_raiser=ErrorRaiser(except_codes=(200, 401, 403, 404, 409, 422)),
+    )
     def update_fraud_rule(self, id: UUID, body: UpdateFraudRuleForm) -> APIResponse[FraudRule]:
         raise NotImplementedError
 

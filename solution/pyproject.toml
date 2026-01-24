@@ -60,7 +60,7 @@ files = ["src/", "tests/"]
 exclude = ["src/backend/infrastructure/database/alembic/"]
 
 [tool.ruff]
-line-length = 120
+line-length = 110
 include = ["pyproject.toml", "src/**/*.py", "tests/**/*.py"]
 exclude = ["src/**/infrastructure/database/alembic/**/*.py"]
 

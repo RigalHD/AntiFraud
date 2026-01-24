@@ -54,7 +54,7 @@ async def test_ok(
 )
 async def test_invalid_auth_data(
     api_client: AntiFraudApiClient,
-    authorized_user: AuthorizedUser,  # не трогать. Это нужно, чтобы автоматически зарегало пользователя
+    authorized_user: AuthorizedUser,  # не трогать. Нужно, чтобы автоматически зарегало пользователя
     login_form: WebLoginForm,
     email: TestField,
     password: TestField,

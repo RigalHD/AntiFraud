@@ -40,7 +40,11 @@ async def read_user(interactor: FromDishka[ReadUser]) -> JSONResponse:
 
 
 @users_router.get("/")
-async def read_many(interactor: FromDishka[ReadUsers], page: int = 0, size: int = 20) -> JSONResponse:
+async def read_many(
+    interactor: FromDishka[ReadUsers],
+    page: int = 0,
+    size: int = 20,
+) -> JSONResponse:
     result = await interactor.execute(page=page, size=size)
 
     return JSONResponse(
@@ -63,7 +67,10 @@ async def read_user_by_id(
 
 
 @users_router.put("/me")
-async def update_user(form: RequestBody[UpdateUserForm], interactor: FromDishka[UpdateUser]) -> JSONResponse:
+async def update_user(
+    form: RequestBody[UpdateUserForm],
+    interactor: FromDishka[UpdateUser],
+) -> JSONResponse:
     result = await interactor.execute(form=form.data)
 
     return JSONResponse(

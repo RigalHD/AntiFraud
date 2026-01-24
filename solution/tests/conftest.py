@@ -8,7 +8,11 @@ from dishka import AsyncContainer
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.application.forms.fraud_rule import DSLValidationForm, FraudRuleForm, UpdateFraudRuleForm
+from backend.application.forms.fraud_rule import (
+    DSLValidationForm,
+    FraudRuleForm,
+    UpdateFraudRuleForm,
+)
 from backend.application.forms.user import AdminUserForm, UpdateUserForm, UserForm
 from backend.bootstrap.di.container import get_async_container
 from backend.domain.entity.fraud_rule import FraudRule
@@ -92,7 +96,9 @@ async def hasher(async_container: AsyncContainer) -> AsyncIterator[Hasher]:
 
 
 @pytest.fixture
-async def access_token_processor(async_container: AsyncContainer) -> AsyncIterator[AccessTokenProcessor]:
+async def access_token_processor(
+    async_container: AsyncContainer,
+) -> AsyncIterator[AccessTokenProcessor]:
     async with async_container() as r:
         yield (await r.get(AccessTokenProcessor))
 

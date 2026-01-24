@@ -1,7 +1,10 @@
 from uuid import uuid4
 
 from backend.application.exception.base import ForbiddenError, UnauthorizedError
-from backend.application.exception.fraud_rule import FraudRuleDoesNotExistError, FraudRuleNameAlreadyExistsError
+from backend.application.exception.fraud_rule import (
+    FraudRuleDoesNotExistError,
+    FraudRuleNameAlreadyExistsError,
+)
 from backend.application.forms.fraud_rule import FraudRuleForm, UpdateFraudRuleForm
 from backend.domain.entity.fraud_rule import FraudRule
 from backend.infrastructure.api.api_client import AntiFraudApiClient
@@ -18,7 +21,9 @@ async def test_ok(
     api_client.authorize(admin_user.access_token)
 
     updated_rule = (
-        (await api_client.update_fraud_rule(fraud_rule.id, update_fraud_rule_form)).expect_status(200).unwrap()
+        (await api_client.update_fraud_rule(fraud_rule.id, update_fraud_rule_form))
+        .expect_status(200)
+        .unwrap()
     )
 
     assert updated_rule.name == update_fraud_rule_form.name
@@ -42,7 +47,9 @@ async def test_used_name(
 
     update_fraud_rule_form.name = fraud_rule_form.name
     error_data = (
-        (await api_client.update_fraud_rule(fraud_rule.id, update_fraud_rule_form)).expect_status(409).err_unwrap()
+        (await api_client.update_fraud_rule(fraud_rule.id, update_fraud_rule_form))
+        .expect_status(409)
+        .err_unwrap()
     )
 
     validate_exception(error_data, FraudRuleNameAlreadyExistsError)
@@ -58,7 +65,9 @@ async def test_ok_with_the_same_name(
 
     update_fraud_rule_form.name = fraud_rule.name
     updated_rule = (
-        (await api_client.update_fraud_rule(fraud_rule.id, update_fraud_rule_form)).expect_status(200).unwrap()
+        (await api_client.update_fraud_rule(fraud_rule.id, update_fraud_rule_form))
+        .expect_status(200)
+        .unwrap()
     )
 
     assert updated_rule.name == update_fraud_rule_form.name
@@ -74,7 +83,9 @@ async def test_no_auth(
     update_fraud_rule_form: UpdateFraudRuleForm,
 ) -> None:
     error_data = (
-        (await api_client.update_fraud_rule(fraud_rule.id, update_fraud_rule_form)).expect_status(401).err_unwrap()
+        (await api_client.update_fraud_rule(fraud_rule.id, update_fraud_rule_form))
+        .expect_status(401)
+        .err_unwrap()
     )
 
     validate_exception(error_data, UnauthorizedError)
@@ -89,7 +100,9 @@ async def test_forbidden(
     api_client.authorize(authorized_user.access_token)
 
     error_data = (
-        (await api_client.update_fraud_rule(fraud_rule.id, update_fraud_rule_form)).expect_status(403).err_unwrap()
+        (await api_client.update_fraud_rule(fraud_rule.id, update_fraud_rule_form))
+        .expect_status(403)
+        .err_unwrap()
     )
 
     validate_exception(error_data, ForbiddenError)
@@ -102,6 +115,8 @@ async def test_not_found(
 ) -> None:
     api_client.authorize(admin_user.access_token)
 
-    error_data = (await api_client.update_fraud_rule(uuid4(), update_fraud_rule_form)).expect_status(404).err_unwrap()
+    error_data = (
+        (await api_client.update_fraud_rule(uuid4(), update_fraud_rule_form)).expect_status(404).err_unwrap()
+    )
 
     validate_exception(error_data, FraudRuleDoesNotExistError)

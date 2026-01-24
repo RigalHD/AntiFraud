@@ -51,7 +51,9 @@ class FastAPITokenParser(AccessTokenParser):
             created_at=datetime.fromtimestamp(decoded_token["iat"], tz=UTC),
         )
 
-        if (access_token.created_at + timedelta(seconds=access_token.expires_in)) < datetime.now(tz=UTC):
+        if (access_token.created_at + timedelta(seconds=access_token.expires_in)) < datetime.now(
+            tz=UTC,
+        ):
             raise UnauthorizedError
 
         return access_token

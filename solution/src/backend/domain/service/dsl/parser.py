@@ -1,7 +1,11 @@
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 
-from backend.domain.exception.dsl import DSLInvalidFieldError, DSLInvalidOperatorError, DSLParseError
+from backend.domain.exception.dsl import (
+    DSLInvalidFieldError,
+    DSLInvalidOperatorError,
+    DSLParseError,
+)
 from backend.domain.service.dsl.ast_node import ASTNode, Comparison, Logical
 from backend.domain.service.dsl.tokens import Token, TokenType
 
@@ -49,9 +53,17 @@ class DSLParser:
         if left.token_type != TokenType.FIELD:
             raise DSLParseError(message="Ошибка парсинга", position=left.position, near=left.value)
         if operator.token_type != TokenType.OP:
-            raise DSLParseError(message="Ошибка парсинга", position=operator.position, near=operator.value)
+            raise DSLParseError(
+                message="Ошибка парсинга",
+                position=operator.position,
+                near=operator.value,
+            )
         if right.token_type not in (TokenType.NUMBER, TokenType.STRING):
-            raise DSLParseError(message="Ошибка парсинга", position=right.position, near=right.value)
+            raise DSLParseError(
+                message="Ошибка парсинга",
+                position=right.position,
+                near=right.value,
+            )
 
         if left.value not in VALID_FIELDS:
             raise DSLInvalidFieldError(message=f"Поле неподдерживается: {left.value}")

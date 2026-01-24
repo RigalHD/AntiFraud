@@ -33,7 +33,9 @@ async def test_ok_by_id(
     api_client.authorize(admin_user.access_token)
 
     old_user = authorized_user.user
-    updated_user = (await api_client.update_user_by_id(old_user.id, update_user_form)).expect_status(200).unwrap()
+    updated_user = (
+        (await api_client.update_user_by_id(old_user.id, update_user_form)).expect_status(200).unwrap()
+    )
 
     assert updated_user.full_name == update_user_form.full_name
     assert updated_user.age == update_user_form.age
@@ -54,7 +56,9 @@ async def test_no_auth_by_id(
     update_user_form: UpdateUserForm,
 ) -> None:
     error_data = (
-        (await api_client.update_user_by_id(authorized_user.user.id, update_user_form)).expect_status(401).err_unwrap()
+        (await api_client.update_user_by_id(authorized_user.user.id, update_user_form))
+        .expect_status(401)
+        .err_unwrap()
     )
 
     validate_exception(error_data, UnauthorizedError)
@@ -84,6 +88,8 @@ async def test_not_found(
 ) -> None:
     api_client.authorize(admin_user.access_token)
 
-    error_data = (await api_client.update_user_by_id(uuid4(), update_user_form)).expect_status(404).err_unwrap()
+    error_data = (
+        (await api_client.update_user_by_id(uuid4(), update_user_form)).expect_status(404).err_unwrap()
+    )
 
     validate_exception(error_data, UserDoesNotExistError)

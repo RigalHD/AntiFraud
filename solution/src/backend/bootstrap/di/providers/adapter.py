@@ -10,7 +10,11 @@ from backend.infrastructure.auth.idp.token_parser import AccessTokenParser
 from backend.infrastructure.auth.idp.token_processor import AccessTokenProcessor
 from backend.infrastructure.auth.idp.web import FastAPITokenParser, WebUserIdProvider
 from backend.infrastructure.config_loader import JWTConfig, RedisConfig
-from backend.infrastructure.database.provider import get_async_engine, get_async_session, get_async_sessionmaker
+from backend.infrastructure.database.provider import (
+    get_async_engine,
+    get_async_session,
+    get_async_sessionmaker,
+)
 from backend.infrastructure.redis import RedisClient
 
 

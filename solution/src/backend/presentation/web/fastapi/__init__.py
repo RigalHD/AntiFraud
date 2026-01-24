@@ -31,7 +31,10 @@ def include_routers(app: FastAPI) -> None:
 def include_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(InternalServerError, internal_server_error_handler)
     app.add_exception_handler(EmailAlreadyExistsError, email_already_exists_error_handler)  # type: ignore
-    app.add_exception_handler(FraudRuleNameAlreadyExistsError, fraud_rule_name_already_exists_error_handler)  # type: ignore
+    app.add_exception_handler(
+        FraudRuleNameAlreadyExistsError,
+        fraud_rule_name_already_exists_error_handler,  # type: ignore
+    )
     app.add_exception_handler(ValidationError, validation_error_handler)  # type: ignore
     app.add_exception_handler(JSONDecodeError, app_error_handler)
     app.add_exception_handler(ApplicationError, app_error_handler)

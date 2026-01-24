@@ -59,6 +59,10 @@ class ValidateDSL:
             is_valid = True
             normalized_expression = ast_to_string(ast)
 
-        dsl_info = DSLInfo(is_valid=is_valid, normalized_expression=normalized_expression, errors=errors)
+        dsl_info = DSLInfo(
+            is_valid=is_valid,
+            normalized_expression=normalized_expression,
+            errors=errors,
+        )
 
         return dsl_info

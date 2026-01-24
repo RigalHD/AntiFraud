@@ -25,13 +25,19 @@ async def validation_error_handler(
     )
 
 
-async def email_already_exists_error_handler(request: Request, exc: EmailAlreadyExistsError) -> JSONResponse:
+async def email_already_exists_error_handler(
+    request: Request,
+    exc: EmailAlreadyExistsError,
+) -> JSONResponse:
     response = ApiErrorResponse.generate_default(type(exc), request.url.path)
     response.details = {
         "field": "email",
         "value": exc.email,
     }
-    return JSONResponse(content=error_serializer.dump(response), status_code=ERROR_HTTP_CODE[type(exc)])
+    return JSONResponse(
+        content=error_serializer.dump(response),
+        status_code=ERROR_HTTP_CODE[type(exc)],
+    )
 
 
 async def fraud_rule_name_already_exists_error_handler(
@@ -43,12 +49,18 @@ async def fraud_rule_name_already_exists_error_handler(
         "field": "name",
         "value": exc.name,
     }
-    return JSONResponse(content=error_serializer.dump(response), status_code=ERROR_HTTP_CODE[type(exc)])
+    return JSONResponse(
+        content=error_serializer.dump(response),
+        status_code=ERROR_HTTP_CODE[type(exc)],
+    )
 
 
 async def app_error_handler(request: Request, exc: Exception) -> JSONResponse:
     response = ApiErrorResponse.generate_default(type(exc), request.url.path)
-    return JSONResponse(content=error_serializer.dump(response), status_code=ERROR_HTTP_CODE[type(exc)])
+    return JSONResponse(
+        content=error_serializer.dump(response),
+        status_code=ERROR_HTTP_CODE[type(exc)],
+    )
 
 
 async def internal_server_error_handler(request: Request, exc: Exception) -> JSONResponse:
@@ -57,4 +69,7 @@ async def internal_server_error_handler(request: Request, exc: Exception) -> JSO
     else:
         logging.error(exc)
     response = ApiErrorResponse.generate_default(InternalServerError, request.url.path)
-    return JSONResponse(content=error_serializer.dump(response), status_code=ERROR_HTTP_CODE[InternalServerError])
+    return JSONResponse(
+        content=error_serializer.dump(response),
+        status_code=ERROR_HTTP_CODE[InternalServerError],
+    )

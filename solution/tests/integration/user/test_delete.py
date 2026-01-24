@@ -30,7 +30,9 @@ async def test_forbidden(
 ) -> None:
     api_client.authorize(authorized_user.access_token)
 
-    error_data = (await api_client.delete_user(another_authorized_user.user.id)).expect_status(403).err_unwrap()
+    error_data = (
+        (await api_client.delete_user(another_authorized_user.user.id)).expect_status(403).err_unwrap()
+    )
 
     validate_exception(error_data, ForbiddenError)
 

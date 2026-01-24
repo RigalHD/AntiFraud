@@ -2,7 +2,6 @@ from datetime import datetime
 from decimal import Decimal
 from ipaddress import IPv4Address
 from typing import Any, Self
-from uuid import UUID
 
 from pydantic import Field, model_validator
 
@@ -27,7 +26,6 @@ class TransactionLocationForm(BaseForm):
 
 
 class TransactionForm(BaseForm):
-    user_id: UUID
     amount: Decimal = Field(ge=Decimal("0.01"), le=Decimal("999999999.99"))
     currency: str = Field(pattern=r"^[A-Z]{3}$")
     status: TransactionStatus

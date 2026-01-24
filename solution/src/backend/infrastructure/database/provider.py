@@ -14,7 +14,12 @@ async def get_async_engine(
     db_config: DataBaseConfig,
 ) -> AsyncGenerator[AsyncEngine]:
     sqlalchemy_url = db_config.build_connection_str()
-    async_engine = create_async_engine(url=sqlalchemy_url, echo=db_config.debug, pool_pre_ping=True, future=True)
+    async_engine = create_async_engine(
+        url=sqlalchemy_url,
+        echo=db_config.debug,
+        pool_pre_ping=True,
+        future=True,
+    )
 
     yield async_engine
 

@@ -5,7 +5,11 @@ from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
-from backend.application.forms.fraud_rule import DSLValidationForm, FraudRuleForm, UpdateFraudRuleForm
+from backend.application.forms.fraud_rule import (
+    DSLValidationForm,
+    FraudRuleForm,
+    UpdateFraudRuleForm,
+)
 from backend.application.fraud_rule.create import CreateFraudRule
 from backend.application.fraud_rule.delete import DeleteFraudRule
 from backend.application.fraud_rule.read import ReadFraudRule, ReadFraudRules

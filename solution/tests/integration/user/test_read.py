@@ -57,13 +57,20 @@ async def test_forbidden_by_id(
 ) -> None:
     api_client.authorize(authorized_user.access_token)
 
-    error_data = (await api_client.read_user_by_id(another_authorized_user.user.id)).expect_status(403).err_unwrap()
+    error_data = (
+        (await api_client.read_user_by_id(another_authorized_user.user.id)).expect_status(403).err_unwrap()
+    )
 
     validate_exception(error_data, ForbiddenError)
 
 
-async def test_no_auth_by_id(api_client: AntiFraudApiClient, another_authorized_user: AuthorizedUser) -> None:
-    error_data = (await api_client.read_user_by_id(another_authorized_user.user.id)).expect_status(401).err_unwrap()
+async def test_no_auth_by_id(
+    api_client: AntiFraudApiClient,
+    another_authorized_user: AuthorizedUser,
+) -> None:
+    error_data = (
+        (await api_client.read_user_by_id(another_authorized_user.user.id)).expect_status(401).err_unwrap()
+    )
 
     validate_exception(error_data, UnauthorizedError)
 

@@ -19,9 +19,22 @@ from backend.application.exception.fraud_rule import (
     FraudRuleNameAlreadyExistsError,
 )
 from backend.application.exception.transaction import MissingLonOrLatError
-from backend.application.exception.user import EmailAlreadyExistsError, InactiveUserError, UserDoesNotExistError
-from backend.domain.exception.dsl import DSLError, DSLInvalidFieldError, DSLInvalidOperatorError, DSLParseError
-from backend.infrastructure.api.exception import InternalServerError, StatusMismatchError, UnableToUnwrapError
+from backend.application.exception.user import (
+    EmailAlreadyExistsError,
+    InactiveUserError,
+    UserDoesNotExistError,
+)
+from backend.domain.exception.dsl import (
+    DSLError,
+    DSLInvalidFieldError,
+    DSLInvalidOperatorError,
+    DSLParseError,
+)
+from backend.infrastructure.api.exception import (
+    InternalServerError,
+    StatusMismatchError,
+    UnableToUnwrapError,
+)
 from backend.infrastructure.parser.pydantic_error import FieldErrorInfo
 from backend.infrastructure.serialization.base import FieldSkip
 

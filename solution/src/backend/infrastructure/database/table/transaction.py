@@ -31,7 +31,7 @@ transaction_table = sa.Table(
     sa.Column("device_id", sa.String(128), nullable=False),
     sa.Column("channel", sa.Enum(TransactionChannel), nullable=False),
     sa.Column("is_fraud", sa.Boolean, nullable=False, default=False),
-    sa.Column("meta_data", sa.JSON, nullable=False, default=dict),
+    sa.Column("metadata", sa.JSON, nullable=False, default=dict),
     sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
 )
 
@@ -39,5 +39,11 @@ mapper_registry.map_imperatively(TransactionLocation, transaction_location_table
 mapper_registry.map_imperatively(
     Transaction,
     transaction_table,
-    properties={"location": sa.orm.relationship(TransactionLocation, uselist=False, cascade="all, delete-orphan")},
+    properties={
+        "location": sa.orm.relationship(
+            TransactionLocation,
+            uselist=False,
+            cascade="all, delete-orphan",
+        ),
+    },
 )

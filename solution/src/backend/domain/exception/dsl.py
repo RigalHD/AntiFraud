@@ -7,6 +7,11 @@ class DSLError(Exception):
 
 
 @dataclass
+class DSLUnsupportedLevelError(DSLError):
+    message: str
+
+
+@dataclass
 class DSLParseError(DSLError):
     message: str
     position: int

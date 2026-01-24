@@ -21,8 +21,18 @@ fraud_rule_table = sa.Table(
 fraud_rule_evaluation_result_table = sa.Table(
     "fraud_rule_evaluation_result_table",
     metadata,
-    sa.Column("transaction_id", sa.UUID(as_uuid=True), sa.ForeignKey("transaction_table.id"), primary_key=True),
-    sa.Column("rule_id", sa.UUID(as_uuid=True), sa.ForeignKey("fraud_rule_table.id"), primary_key=True),
+    sa.Column(
+        "transaction_id",
+        sa.UUID(as_uuid=True),
+        sa.ForeignKey("transaction_table.id"),
+        primary_key=True,
+    ),
+    sa.Column(
+        "rule_id",
+        sa.UUID(as_uuid=True),
+        sa.ForeignKey("fraud_rule_table.id"),
+        primary_key=True,
+    ),
     sa.Column("rule_name", sa.String(120), nullable=False),
     sa.Column("priority", sa.Integer, nullable=False),
     sa.Column("matched", sa.Boolean, nullable=False),

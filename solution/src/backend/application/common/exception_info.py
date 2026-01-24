@@ -1,4 +1,9 @@
-from backend.domain.exception.dsl import DSLError, DSLInvalidFieldError, DSLInvalidOperatorError, DSLParseError
+from backend.domain.exception.dsl import (
+    DSLError,
+    DSLInvalidFieldError,
+    DSLInvalidOperatorError,
+    DSLParseError,
+)
 
 DSL_ERRORS_CODES = {
     DSLError: "DSL_ERROR",

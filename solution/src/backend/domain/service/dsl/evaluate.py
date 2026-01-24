@@ -1,12 +1,17 @@
-from dataclasses import dataclass
-
+from backend.domain.entity.transaction import Transaction
 from backend.domain.exception.dsl import DSLError, DSLInvalidFieldError, DSLInvalidOperatorError
 from backend.domain.service.dsl.ast_node import ASTNode, Comparison, Logical
 
 
-@dataclass(slots=True)
 class Evaluator:
-    context: dict[str, int | str]
+    def __init__(self, transaction: Transaction) -> None:
+        self.context = {
+            "amount": transaction.amount,
+            "currency": f"'{transaction.currency}'",
+            "merchantId": f"'{transaction.merchant_id}'",
+            "ipAddress": f"'{transaction.ip_address}'",
+            "deviceId": f"'{transaction.device_id}'",
+        }
 
     def eval_logical(self, node: Logical) -> bool:
         left = self.eval(node.left)

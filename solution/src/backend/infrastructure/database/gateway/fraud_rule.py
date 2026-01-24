@@ -28,10 +28,17 @@ class SAFraudRuleGateway(FraudRuleGateway):
 
         return res.scalar()
 
+    async def get_many_by_priority(self, enabled: bool | None) -> Sequence[FraudRule]:
+        stmt = select(FraudRule).order_by(fraud_rule_table.c.priority.asc())
+        if enabled is not None:
+            stmt = stmt.where(fraud_rule_table.c.enabled == enabled)
+
+        res = await self.session.execute(stmt)
+
+        return res.scalars().all()
+
     async def get_many(self) -> Sequence[FraudRule]:
-        stmt = select(FraudRule).order_by(
-            fraud_rule_table.c.created_at.asc(),
-        )
+        stmt = select(FraudRule).order_by(fraud_rule_table.c.created_at.asc())
 
         res = await self.session.execute(stmt)
 
@@ -43,15 +50,18 @@ class SAFraudRuleEvaluationResultGateway(FraudRuleEvaluationResultGateway):
     session: AsyncSession
 
     async def get_by_id(self, id: UUID) -> FraudRuleEvaluationResult | None:
-        user = await self.session.get(FraudRule, id)
+        rule_result = await self.session.get(FraudRuleEvaluationResult, id)
 
-        return user
-    
-    async def get_many(self, transaction_id: UUID | None = None) -> Sequence[FraudRuleEvaluationResult]:
+        return rule_result
+
+    async def get_many(
+        self,
+        transaction_id: UUID | None = None,
+    ) -> Sequence[FraudRuleEvaluationResult]:
         stmt = select(FraudRuleEvaluationResult).order_by(
             fraud_rule_table.c.created_at.asc(),
         )
-        
+
         if transaction_id is not None:
             stmt = stmt.where(fraud_rule_table.c.transaction_id == transaction_id)
 

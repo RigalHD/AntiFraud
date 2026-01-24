@@ -14,12 +14,18 @@ class FraudRuleGateway(Protocol):
     async def get_by_name(self, name: str) -> FraudRule | None: ...
 
     @abstractmethod
+    async def get_many_by_priority(self, enabled: bool | None) -> Sequence[FraudRule]: ...
+
+    @abstractmethod
     async def get_many(self) -> Sequence[FraudRule]: ...
 
 
 class FraudRuleEvaluationResultGateway(Protocol):
     @abstractmethod
     async def get_by_id(self, id: UUID) -> FraudRuleEvaluationResult | None: ...
-    
+
     @abstractmethod
-    async def get_many(self, transaction_id: UUID | None = None) -> Sequence[FraudRuleEvaluationResult]: ...
+    async def get_many(
+        self,
+        transaction_id: UUID | None = None,
+    ) -> Sequence[FraudRuleEvaluationResult]: ...

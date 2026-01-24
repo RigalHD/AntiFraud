@@ -18,7 +18,11 @@ from backend.domain.entity.user import User
 from backend.domain.misc_types import Role
 from backend.infrastructure.auth.hasher import Hasher
 from backend.infrastructure.config_loader import AdminConfig
-from backend.presentation.web.fastapi import include_exception_handlers, include_middlewares, include_routers
+from backend.presentation.web.fastapi import (
+    include_exception_handlers,
+    include_middlewares,
+    include_routers,
+)
 
 
 @asynccontextmanager
