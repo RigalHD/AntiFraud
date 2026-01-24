@@ -108,7 +108,7 @@ async def test_invalid_operator(
     assert dsl_info.errors[0].code == "DSL_INVALID_OPERATOR"
 
 
-async def test_ok_level_2(
+async def test_ok_level_3(
     api_client: AntiFraudApiClient,
     admin_user: AuthorizedUser,
     dsl_validation_form: DSLValidationForm,
@@ -123,7 +123,7 @@ async def test_ok_level_2(
     assert len(dsl_info.errors) == 0
 
 
-async def test_ok_level_2_normalization(
+async def test_ok_level_3_normalization(
     api_client: AntiFraudApiClient,
     admin_user: AuthorizedUser,
     dsl_validation_form: DSLValidationForm,
