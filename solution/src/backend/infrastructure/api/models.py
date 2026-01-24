@@ -15,14 +15,11 @@ from backend.application.exception.base import (
     UnauthorizedError,
 )
 from backend.application.exception.fraud_rule import (
-    DSLError,
-    DSLInvalidFieldError,
-    DSLInvalidOperatorError,
-    DSLParseError,
     FraudRuleDoesNotExistError,
     FraudRuleNameAlreadyExistsError,
 )
 from backend.application.exception.user import EmailAlreadyExistsError, InactiveUserError, UserDoesNotExistError
+from backend.domain.exception.dsl import DSLError, DSLInvalidFieldError, DSLInvalidOperatorError, DSLParseError
 from backend.infrastructure.api.exception import InternalServerError, StatusMismatchError, UnableToUnwrapError
 from backend.infrastructure.parser.pydantic_error import FieldErrorInfo
 from backend.infrastructure.serialization.base import FieldSkip

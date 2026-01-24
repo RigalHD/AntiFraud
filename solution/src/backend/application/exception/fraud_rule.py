@@ -9,22 +9,3 @@ class FraudRuleNameAlreadyExistsError(ApplicationError):
 
 
 class FraudRuleDoesNotExistError(ApplicationError): ...
-
-
-class DSLError(ApplicationError): ...
-
-
-class DSLParseError(DSLError):
-    message: str
-    position: int
-    near: str
-
-
-class DSLInvalidFieldError(DSLError):
-    message: str
-    field: str
-
-
-class DSLInvalidOperatorError(DSLError):
-    operator: str
-    type_: str

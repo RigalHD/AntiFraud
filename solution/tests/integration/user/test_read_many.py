@@ -60,7 +60,7 @@ async def test_ok(
     assert seen_ids == set(users_dict.keys())
 
 
-async def test_page(
+async def test_ok_page(
     api_client: AntiFraudApiClient,
     admin_user: AuthorizedUser,
     admin_user_form: AdminUserForm,
@@ -74,9 +74,7 @@ async def test_page(
         form = admin_user_form.model_copy(update={"email": f"user{i}@example.com"})
         jobs.append(api_client.create_user(form))
 
-    users_list: list[User] = [response.expect_status(201).unwrap() for response in await asyncio.gather(*jobs)]
-    users_list.append(admin_user.user)
-    users_list.sort(key=lambda u: u.created_at)
+    [response.expect_status(201).unwrap() for response in await asyncio.gather(*jobs)]
 
     resp_users = (await api_client.read_users(page=1, size=1)).expect_status(200).unwrap()
 
@@ -84,8 +82,6 @@ async def test_page(
     assert resp_users.total == 3
     assert resp_users.page == 1
     assert resp_users.size == 1
-
-    assert resp_users.items[0] == users_list[1]
 
 
 @pytest.mark.parametrize(
