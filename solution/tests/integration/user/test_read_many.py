@@ -113,7 +113,7 @@ async def test_no_auth(api_client: AntiFraudApiClient) -> None:
     validate_exception(error_data, UnauthorizedError)
 
 
-async def test_forbidd(
+async def test_forbidden(
     api_client: AntiFraudApiClient,
     authorized_user: AuthorizedUser,
 ) -> None:
