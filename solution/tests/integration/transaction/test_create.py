@@ -31,6 +31,7 @@ async def test_ok_admin(
     assert transaction.ip_address == str(transaction_form.ip_address)
     assert transaction.device_id == transaction_form.device_id
     assert transaction.channel == transaction_form.channel
+    assert transaction.location is not None
     assert transaction.location.country == transaction_form.location.country
     assert transaction.location.city == transaction_form.location.city
     assert transaction.location.latitude == transaction_form.location.latitude
