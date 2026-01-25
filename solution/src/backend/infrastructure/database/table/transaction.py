@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.orm import relationship
 
 from backend.domain.entity.transaction import Transaction, TransactionLocation
 from backend.domain.misc_types import TransactionChannel, TransactionStatus
@@ -40,10 +41,11 @@ mapper_registry.map_imperatively(
     Transaction,
     transaction_table,
     properties={
-        "location": sa.orm.relationship(
+        "location": relationship(
             TransactionLocation,
             uselist=False,
             cascade="all, delete-orphan",
+            lazy="selectin",
         ),
     },
 )

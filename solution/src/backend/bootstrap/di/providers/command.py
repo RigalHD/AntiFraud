@@ -43,5 +43,5 @@ class CommandProvider(Provider):
         ValidateDSL,
         CreateTransaction,
         ReadTransactions,
-        ReadTransaction
+        ReadTransaction,
     )

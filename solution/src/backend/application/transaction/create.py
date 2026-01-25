@@ -10,7 +10,7 @@ from backend.application.common.idp import UserIdProvider
 from backend.application.common.uow import UoW
 from backend.application.exception.base import CustomValidationError, ForbiddenError
 from backend.application.exception.user import UserDoesNotExistError
-from backend.application.forms.transaction import AdminTransactionForm, TransactionForm
+from backend.application.forms.transaction import TransactionForm
 from backend.application.service.rule_evaluator import RuleEvaluator
 from backend.application.transaction.dto import FraudRuleEvaluationResultDTO, TransactionDecision
 from backend.domain.entity.transaction import Transaction, TransactionLocation
@@ -34,10 +34,8 @@ class CreateTransaction:
 
         if viewer.role == Role.USER:
             user_id = viewer.id
-        else:
-            user_id = form.user_id
-            if user_id is None:
-                raise CustomValidationError(field="userId", rejected_value=None, issue="UserId Отсуствует")
+        elif form.user_id is None:
+            raise CustomValidationError(field="userId", rejected_value=None, issue="UserId Отсуствует")
 
         if await self.user_gateway.get_by_id(user_id) is None:
             raise UserDoesNotExistError

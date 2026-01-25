@@ -1,5 +1,6 @@
 import asyncio
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 
 from backend.application.exception.base import CustomValidationError, UnauthorizedError
 from backend.application.forms.transaction import TransactionForm
@@ -19,7 +20,7 @@ async def test_ok_admin(
 
     jobs = []
     for i in range(3):
-        form = transaction_form.model_copy(update={"amount": 100 + i})
+        form = transaction_form.model_copy(update={"amount": Decimal(f"{100 + i}.00")})
         jobs.append(api_client.create_transaction(form))
 
     await asyncio.gather(*jobs)
@@ -67,7 +68,7 @@ async def test_ok_pagination(
 
     jobs = []
     for i in range(5):
-        form = transaction_form.model_copy(update={"amount": 100 + i})
+        form = transaction_form.model_copy(update={"amount": Decimal(f"{100 + i}.00")})
         jobs.append(api_client.create_transaction(form))
 
     await asyncio.gather(*jobs)

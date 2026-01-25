@@ -43,9 +43,14 @@ async def read_transactions(
     to: Annotated[datetime | None, Query()] = None,
 ) -> JSONResponse:
     try:
-        u_id = UUID(user_id)
-    except Exception:
-        raise CustomValidationError(rejected_value=user_id, field="userId", issue="Неподходящий формат id")
+        if isinstance(user_id, str):
+            u_id = UUID(user_id)
+    except ValueError as e:
+        raise CustomValidationError(
+            rejected_value=user_id,
+            field="userId",
+            issue="Неподходящий формат id",
+        ) from e
     form = ManyTransactionReadForm(
         page=page,
         size=size,
