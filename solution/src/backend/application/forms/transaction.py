@@ -23,9 +23,9 @@ class TransactionLocationForm(BaseForm):
         lon = self.longitude
 
         if (lat is None) and (lon is not None):
-            raise MissingLonOrLatError(field="latitude", issue="Долгота указана, а широта отсутствует")
+            raise MissingLonOrLatError(field="location.latitude", issue="Долгота указана, а широта отсутствует")
         if (lon is None) and (lat is not None):
-            raise MissingLonOrLatError(field="longitude", issue="Широта указана, а долгота отсутствует")
+            raise MissingLonOrLatError(field="location.longitude", issue="Широта указана, а долгота отсутствует")
 
         return self
 
