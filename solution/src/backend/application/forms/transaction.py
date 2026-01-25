@@ -14,8 +14,8 @@ from backend.domain.misc_types import TransactionChannel, TransactionStatus
 class TransactionLocationForm(BaseForm):
     country: str | None = Field(default=None, pattern=r"^[A-Z]{2}$")
     city: str | None = Field(default=None, max_length=128)
-    latitude: Decimal | None = Field(ge=Decimal("-90.0"), le=Decimal("90.0"))
-    longitude: Decimal | None = Field(ge=Decimal("-180.0"), le=Decimal("180.0"))
+    latitude: Decimal | None = Field(default=None, ge=Decimal("-90.0"), le=Decimal("90.0"))
+    longitude: Decimal | None = Field(default=None, ge=Decimal("-180.0"), le=Decimal("180.0"))
 
     @model_validator(mode="after")
     def check_lat_lon(self) -> Self:

@@ -191,6 +191,12 @@ class AntiFraudApiClient(AiohttpClient):
     @rest.get(
         "transactions/",
         error_raiser=ErrorRaiser(except_codes=(200, 401, 422)),
+        query_param_dumper=Retort(
+            recipe=[
+                dumper(datetime, lambda x: x.strftime("%Y-%m-%dT%H:%M:%SZ")),
+                name_mapping(map={"from_": "from"}),
+            ],
+        ),
     )
     def read_transactions(
         self,
