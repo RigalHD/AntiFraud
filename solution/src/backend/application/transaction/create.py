@@ -28,6 +28,7 @@ class CreateTransaction:
 
     async def execute(self, form: TransactionForm) -> TransactionDecision:
         viewer = await self.idp.get_user()
+        user_id = viewer.id
 
         if viewer.is_active is False:
             raise ForbiddenError

@@ -42,6 +42,8 @@ async def read_transactions(
     from_: Annotated[datetime | None, Query(alias="from")] = None,
     to: Annotated[datetime | None, Query()] = None,
 ) -> JSONResponse:
+    if user_id is None:
+        u_id = user_id
     try:
         if isinstance(user_id, str):
             u_id = UUID(user_id)
