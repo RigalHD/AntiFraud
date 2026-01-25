@@ -1,13 +1,19 @@
 set windows-powershell := true
 
-setup docker:
-    docker network create antifraud-net
+run:
+    just down
+    docker compose -f compose.local-run.yaml up --build
 
-stop:
-    docker stop app postgres
+tests:
+    docker compose -f compose.tests.yaml up --build
+    just down
+
+down:
+    docker compose -f compose.local-run.yaml down
+    docker compose -f compose.tests.yaml down
 
 clear:
-    docker rm -f app postgres
+    docker compose -f compose.local-run.yaml down -v
 
 lint:
     ruff format
@@ -15,4 +21,4 @@ lint:
     mypy --strict
 
 migration *ARGS:
-    docker exec -it app backend migrations autogenerate "{{ARGS}}"
+    docker exec -it antifraud-backend backend migrations autogenerate "{{ARGS}}"

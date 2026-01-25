@@ -2,15 +2,42 @@
 
 ## Данный ReadMe файл будет заполнен позже
 
-## Все команды нужно выполнять, находясь в корневой папке проекта (т.е. выше папки solution/)
-## Локальный запуск:
+# Локальный запуск (из директории solution/)
+### Проект
+(Требуется установленный на пк justfile (Или же rust-just через pip))
+```
+just run
+```
+### Тесты
+```
+just tests
+```
+### Миграции
+```
+just migration Migration changes text
+```
+### Остановка
+```
+just down
+```
+### Очистка 
+```
+just clear
+```
+### Запуск линтеров
+```
+just lint
+```
+
+# Локальный запуск БЕЗ docker-compose. Запускается тот же Dockerfile, который запускает gitlab ci
+ Все команды нужно выполнять, находясь в корневой папке проекта (т.е. выше папки solution/)
 
 1) Установите justfile
 2) Затем создайте сеть докера
-- just -f solution/justfile setup_docker
+docker network create antifraud-net
 
 ### Затем выполните эти команды для первого запуска
-
+```
 docker run -d --name postgres \
   --network antifraud-net \
   -e POSTGRES_USER=postgres \
@@ -36,12 +63,8 @@ docker run -d --name app \
   -e REDIS_PORT=6379 \
   -p 8080:8080 \
   antifraud
+```
 
-## Остановка
-just -f solution/justfile stop
-
-## Полная очистка контейнеров Docker
-just clear
 
 ## Тесты:
 ### Создайте сеть для тестов:
