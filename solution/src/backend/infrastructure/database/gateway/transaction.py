@@ -33,7 +33,7 @@ class SATransactionGateway(TransactionGateway):
     ) -> Sequence[Transaction]:
         stmt = (
             select(Transaction)
-            .order_by(transaction_table.c.timestamp.asc())
+            .order_by(transaction_table.c.timestamp.desc())
             .where(transaction_table.c.created_at >= from_)
             .where(transaction_table.c.created_at <= to)
         )
