@@ -66,7 +66,7 @@ class ApiResponseTransformer(BaseResponseTransformer):
 rest = RestBuilder(
     request_body_dumper=api_dump_serializer,
     response_body_loader=api_load_serializer,
-    query_param_dumper=Retort(),
+    query_param_dumper=api_dump_serializer,
     response_body_pre_load=ApiResponseTransformer(),
 )
 

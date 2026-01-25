@@ -35,10 +35,9 @@ class CreateTransaction:
         if viewer.role == Role.USER:
             user_id = viewer.id
         else:
-            admin_form = AdminTransactionForm(
-                **form.model_dump(include=form.model_fields.keys()),  # type: ignore
-            )
-            user_id = admin_form.user_id
+            user_id = form.user_id
+            if user_id is None:
+                raise CustomValidationError(field="userId", rejected_value=None, issue="UserId Отсуствует")
 
         if await self.user_gateway.get_by_id(user_id) is None:
             raise UserDoesNotExistError

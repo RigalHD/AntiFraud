@@ -5,9 +5,10 @@ from uuid import UUID
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from backend.application.common.gateway.transaction import TransactionGateway
-from backend.domain.entity.transaction import Transaction
+from backend.domain.entity.transaction import Transaction, TransactionLocation
 from backend.domain.misc_types import TransactionStatus
 from backend.infrastructure.database.table.transaction import transaction_table
 
@@ -17,9 +18,13 @@ class SATransactionGateway(TransactionGateway):
     session: AsyncSession
 
     async def get_by_id(self, id: UUID) -> Transaction | None:
-        user = await self.session.get(Transaction, id)
-
-        return user
+        stmt = (
+            select(Transaction)
+            .options(selectinload(Transaction.location))
+            .where(transaction_table.c.id == id)
+        )
+        res = await self.session.execute(stmt)
+        return res.scalar()
 
     async def get_many(
         self,
@@ -33,6 +38,7 @@ class SATransactionGateway(TransactionGateway):
     ) -> Sequence[Transaction]:
         stmt = (
             select(Transaction)
+            .options(selectinload(Transaction.location))
             .order_by(transaction_table.c.timestamp.asc())
             .where(transaction_table.c.created_at >= from_)
             .where(transaction_table.c.created_at <= to)
