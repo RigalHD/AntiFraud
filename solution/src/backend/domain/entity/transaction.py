@@ -19,15 +19,15 @@ class Transaction:
     amount: Decimal
     currency: str
     status: TransactionStatus
-    merchant_id: str
+    merchant_id: str | None
     merchant_category_code: str | None
     timestamp: datetime
-    ip_address: str
-    device_id: str
-    channel: TransactionChannel
-    location: TransactionLocation
+    ip_address: str | None
+    device_id: str | None
+    channel: TransactionChannel | None
+    location: TransactionLocation | None
     is_fraud: bool
-    metadata: MetaDataJSON = field(default_factory=dict)
+    metadata: MetaDataJSON | None = field(default=None)
     created_at: datetime = field(default_factory=lambda: datetime.now(tz=UTC))
 
 

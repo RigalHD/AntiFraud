@@ -43,12 +43,14 @@ class CreateTransaction:
         if await self.user_gateway.get_by_id(user_id) is None:
             raise UserDoesNotExistError
 
-        location = TransactionLocation(
-            country=form.location.country,
-            city=form.location.city,
-            latitude=form.location.latitude,
-            longitude=form.location.longitude,
-        )
+        location: TransactionLocation | None = None
+        if form.location is not None:
+            location = TransactionLocation(
+                country=form.location.country,
+                city=form.location.city,
+                latitude=form.location.latitude,
+                longitude=form.location.longitude,
+            )
 
         rounded_amount = form.amount.quantize(Decimal("0.00"), rounding=ROUND_HALF_UP)
 

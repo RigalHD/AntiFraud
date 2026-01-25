@@ -34,28 +34,28 @@ class TransactionForm(BaseForm):
     user_id: UUID | None = Field(default=None, alias="userId")
     amount: Decimal = Field(ge=Decimal("0.01"), le=Decimal("999999999.99"))
     currency: str = Field(pattern=r"^[A-Z]{3}$")
-    merchant_id: str = Field(alias="merchantId", max_length=64)
+    merchant_id: str | None = Field(default=None, alias="merchantId", max_length=64)
     merchant_category_code: str | None = Field(default=None, alias="merchantCategoryCode", pattern=r"^\d{4}$")
     timestamp: datetime
-    ip_address: str = Field(alias="ipAddress", max_length=64)
-    device_id: str = Field(alias="deviceId", max_length=128)
-    channel: TransactionChannel
-    location: TransactionLocationForm
-    metadata: MetaDataJSON = Field(default_factory=dict)
+    ip_address: str | None = Field(default=None, alias="ipAddress", max_length=64)
+    device_id: str | None = Field(default=None, alias="deviceId", max_length=128)
+    channel: TransactionChannel | None = Field(default=None)
+    location: TransactionLocationForm | None = Field(default=None)
+    metadata: MetaDataJSON | None = Field(default=None)
 
 
 class AdminTransactionForm(BaseForm):
     user_id: UUID = Field(alias="userId")
     amount: Decimal = Field(ge=Decimal("0.01"), le=Decimal("999999999.99"))
     currency: str = Field(pattern=r"^[A-Z]{3}$")
-    merchant_id: str = Field(alias="merchantId", max_length=64)
+    merchant_id: str | None = Field(default=None, alias="merchantId", max_length=64)
     merchant_category_code: str | None = Field(default=None, alias="merchantCategoryCode", pattern=r"^\d{4}$")
     timestamp: datetime
-    ip_address: str = Field(alias="ipAddress", max_length=64)
-    device_id: str = Field(alias="deviceId", max_length=128)
-    channel: TransactionChannel
-    location: TransactionLocationForm
-    metadata: MetaDataJSON = Field(default_factory=dict)
+    ip_address: str | None = Field(default=None, alias="ipAddress", max_length=64)
+    device_id: str | None = Field(default=None, alias="deviceId", max_length=128)
+    channel: TransactionChannel | None = Field(default=None)
+    location: TransactionLocationForm | None = Field(default=None)
+    metadata: MetaDataJSON | None = Field(default=None)
 
 
 class ManyTransactionReadForm(BaseForm):
