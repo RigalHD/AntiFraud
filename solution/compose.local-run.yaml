@@ -1,0 +1,37 @@
+services:
+  postgres:
+    container_name: antifraud-postgres
+    extends:
+      file: compose.base.yaml
+      service: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=testdb
+  
+  backend:
+    container_name: antifraud-backend
+    extends:
+      file: compose.base.yaml
+      service: backend
+    environment:
+      - ADMIN_EMAIL=admin@mail.ru
+      - ADMIN_FULLNAME=Test Test
+      - ADMIN_PASSWORD=123123123aA!
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=testdb
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - RANDOM_SECRET=Jf/ZpZSxfMWnOexP48Mp1z200jd+8BVZ7ws6Uw5Jp/w=
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - 8080:8080
+
+volumes:
+    db-data:
