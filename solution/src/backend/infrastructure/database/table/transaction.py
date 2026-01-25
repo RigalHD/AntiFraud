@@ -26,7 +26,7 @@ transaction_table = sa.Table(
     sa.Column("currency", sa.String(3), nullable=False),
     sa.Column("status", sa.Enum(TransactionStatus), nullable=False),
     sa.Column("merchant_id", sa.String(64), nullable=False),
-    sa.Column("merchant_category_code", sa.String(4), nullable=False),
+    sa.Column("merchant_category_code", sa.String(4), nullable=True),
     sa.Column("timestamp", sa.DateTime(timezone=True), nullable=False),
     sa.Column("ip_address", sa.String(64), nullable=False),
     sa.Column("device_id", sa.String(128), nullable=False),

@@ -20,7 +20,7 @@ class Transaction:
     currency: str
     status: TransactionStatus
     merchant_id: str
-    merchant_category_code: str
+    merchant_category_code: str | None
     timestamp: datetime
     ip_address: str
     device_id: str
