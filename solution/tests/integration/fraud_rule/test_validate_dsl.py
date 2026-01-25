@@ -22,6 +22,21 @@ async def test_ok_level_1(
     assert len(dsl_info.errors) == 0
 
 
+async def test_ok_negative_number(
+    api_client: AntiFraudApiClient,
+    admin_user: AuthorizedUser,
+    dsl_validation_form: DSLValidationForm,
+) -> None:
+    api_client.authorize(admin_user.access_token)
+    dsl_validation_form.dsl_expression = "amount > -100"
+
+    dsl_info = (await api_client.validate_dsl(dsl_validation_form)).expect_status(200).unwrap()
+
+    assert dsl_info.is_valid is True
+    assert dsl_info.normalized_expression == dsl_validation_form.dsl_expression
+    assert len(dsl_info.errors) == 0
+
+
 async def test_ok_level_1_normalization(
     api_client: AntiFraudApiClient,
     admin_user: AuthorizedUser,
@@ -63,7 +78,7 @@ async def test_parse_error(
 ) -> None:
     api_client.authorize(admin_user.access_token)
 
-    dsl_validation_form.dsl_expression = "amount > AND user.age < 21"
+    dsl_validation_form.dsl_expression = "amount > AND amount = 'RUB'"
     dsl_info = (await api_client.validate_dsl(dsl_validation_form)).expect_status(200).unwrap()
 
     logging.critical(dsl_info)

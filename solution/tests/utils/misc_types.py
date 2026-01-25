@@ -8,4 +8,8 @@ class TestField(Enum):
     CHANGE_IN_TEST = "CHANGE_IN_TEST"
 
 
+class DictResult:
+    NOT_FOUND = "NOT_FOUND"
+
+
 type AuthorizedUser = LoginResponse

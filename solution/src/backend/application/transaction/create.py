@@ -1,21 +1,20 @@
-from uuid import UUID, uuid4
+from datetime import UTC, datetime, timedelta
+from decimal import ROUND_HALF_UP, Decimal
+from uuid import uuid4
 
 from backend.application.common.decorator import interactor
 from backend.application.common.gateway.fraud_rule import FraudRuleGateway
 from backend.application.common.gateway.transaction import TransactionGateway
+from backend.application.common.gateway.user import UserGateway
 from backend.application.common.idp import UserIdProvider
 from backend.application.common.uow import UoW
-from backend.application.exception.base import ForbiddenError
-from backend.application.forms.transaction import TransactionForm
-from backend.application.fraud_rule.validate_dsl import ValidateDSL
-from backend.domain.entity.fraud_rule import FraudRuleEvaluationResult
+from backend.application.exception.base import CustomValidationError, ForbiddenError
+from backend.application.exception.user import UserDoesNotExistError
+from backend.application.forms.transaction import AdminTransactionForm, TransactionForm
+from backend.application.service.rule_evaluator import RuleEvaluator
+from backend.application.transaction.dto import FraudRuleEvaluationResultDTO, TransactionDecision
 from backend.domain.entity.transaction import Transaction, TransactionLocation
-from backend.domain.exception.dsl import DSLError
-from backend.domain.misc_types import Role
-from backend.domain.service.dsl.evaluate import Evaluator
-from backend.domain.service.dsl.lex import Lexer
-from backend.domain.service.dsl.parser import DSLParser
-from backend.domain.service.dsl.validation import validate_dsl
+from backend.domain.misc_types import Role, TransactionStatus
 
 
 @interactor
@@ -24,15 +23,26 @@ class CreateTransaction:
     gateway: TransactionGateway
     rule_gateway: FraudRuleGateway
     idp: UserIdProvider
-    dsl_validator: ValidateDSL
+    user_gateway: UserGateway
+    rule_evaluator: RuleEvaluator
 
-    async def execute(self, form: TransactionForm, user_id: UUID) -> Transaction:
+    async def execute(self, form: TransactionForm) -> TransactionDecision:
         viewer = await self.idp.get_user()
 
-        if viewer.role != Role.ADMIN and user_id != viewer.id:
+        if viewer.is_active is False:
             raise ForbiddenError
 
-        is_fraud = False
+        if viewer.role == Role.USER:
+            user_id = viewer.id
+        else:
+            admin_form = AdminTransactionForm(
+                **form.model_dump(include=form.model_fields.keys()),  # type: ignore
+            )
+            user_id = admin_form.user_id
+
+        if await self.user_gateway.get_by_id(user_id) is None:
+            raise UserDoesNotExistError
+
         location = TransactionLocation(
             country=form.location.country,
             city=form.location.city,
@@ -40,57 +50,60 @@ class CreateTransaction:
             longitude=form.location.longitude,
         )
 
+        rounded_amount = form.amount.quantize(Decimal("0.00"), rounding=ROUND_HALF_UP)
+
+        if form.timestamp > (datetime.now(tz=UTC) + timedelta(minutes=5)):
+            raise CustomValidationError(
+                field="timestamp",
+                rejected_value=form.timestamp,
+                issue="Транзакция из далекого будущего",
+            )
+
         transaction = Transaction(
             id=uuid4(),
             user_id=user_id,
-            amount=form.amount,
+            amount=rounded_amount,
             currency=form.currency,
-            status=form.status,
+            status=TransactionStatus.APPROVED,
             merchant_id=form.merchant_id,
             merchant_category_code=form.merchant_category_code,
             timestamp=form.timestamp,
-            ip_address=str(form.ip_address),
+            ip_address=form.ip_address,
             device_id=form.device_id,
             channel=form.channel,
             location=location,
             metadata=form.metadata,
-            is_fraud=is_fraud,
+            is_fraud=False,
         )
 
-        enabled_rules = list(await self.rule_gateway.get_many_by_priority(enabled=True))
-        rule_results: list[FraudRuleEvaluationResult] = []
+        evaluator_result = await self.rule_evaluator.execute(transaction)
 
-        evaluator = Evaluator(transaction=transaction)
-
-        for rule in enabled_rules:
-            try:
-                validate_dsl(rule.dsl_expression)
-                tokens = Lexer(rule.dsl_expression).tokenize()
-                ast = DSLParser(tokens).parse()
-                result = evaluator.eval(ast)
-            except DSLError:
-                result = False
-
-            if result:
-                is_fraud = True
-
-            description = f'Правило "{rule.dsl_expression}" {"сработало" if result else "не сработало"}'
-
-            rule_result = FraudRuleEvaluationResult(
-                transaction_id=transaction.id,
-                rule_id=rule.id,
-                rule_name=rule.name,
-                priority=rule.priority,
-                matched=result,
-                description=description,
+        rule_results_dto = [
+            FraudRuleEvaluationResultDTO(
+                rule_id=result.rule_id,
+                rule_name=result.rule_name,
+                priority=result.priority,
+                matched=result.matched,
+                description=result.description,
             )
-            self.uow.add(rule_result)
-            rule_results.append(rule_result)
+            for result in evaluator_result.rule_results
+        ]
 
-        transaction.is_fraud = is_fraud
+        transaction.is_fraud = evaluator_result.is_fraud
+        transaction.status = evaluator_result.status
 
         self.uow.add(transaction)
-        await self.uow.flush((transaction, *rule_results))
+        await self.uow.flush((transaction,))
+
+        for rule_result in evaluator_result.rule_results:
+            self.uow.add(rule_result)
+        await self.uow.flush((*evaluator_result.rule_results,))
+
         await self.uow.commit()
 
-        return transaction
+        transaction_decision = TransactionDecision(
+            transaction=transaction,
+            rule_results=rule_results_dto,
+        )
+
+        return transaction_decision

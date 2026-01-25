@@ -8,6 +8,8 @@ from uuid import UUID
 
 from backend.domain.misc_types import TransactionChannel, TransactionStatus
 
+type MetaDataJSON = dict[str, Any]
+
 
 @dataclass
 class Transaction:
@@ -25,8 +27,7 @@ class Transaction:
     channel: TransactionChannel
     location: TransactionLocation
     is_fraud: bool
-    metadata: dict[str, Any] = field(default_factory=dict)
-
+    metadata: MetaDataJSON = field(default_factory=dict)
     created_at: datetime = field(default_factory=lambda: datetime.now(tz=UTC))
 
 

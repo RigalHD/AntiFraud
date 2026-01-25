@@ -11,6 +11,7 @@ from backend.domain.misc_types import Role
 from backend.domain.service.dsl.lex import Lexer
 from backend.domain.service.dsl.normalize import ast_to_string
 from backend.domain.service.dsl.parser import DSLParser
+from backend.domain.service.dsl.validation import validate_dsl
 
 
 @dataclass(slots=True, frozen=True)
@@ -30,6 +31,15 @@ class ValidateDSL:
 
         if viewer.role != Role.ADMIN:
             raise ForbiddenError
+
+        try:
+            validate_dsl(dsl_expression)
+        except DSLError:
+            return DSLInfo(
+                is_valid=False,
+                normalized_expression=None,
+                errors=[],
+            )
 
         is_valid = False
         normalized_expression = None

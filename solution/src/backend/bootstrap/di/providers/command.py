@@ -5,6 +5,9 @@ from backend.application.fraud_rule.delete import DeleteFraudRule
 from backend.application.fraud_rule.read import ReadFraudRule, ReadFraudRules
 from backend.application.fraud_rule.update import UpdateFraudRule
 from backend.application.fraud_rule.validate_dsl import ValidateDSL
+from backend.application.service.rule_evaluator import RuleEvaluator
+from backend.application.transaction.create import CreateTransaction
+from backend.application.transaction.read import ReadTransaction, ReadTransactions
 from backend.application.user.create import CreateAdminUser, CreateUser
 from backend.application.user.delete import DeleteUser
 from backend.application.user.read import ReadUser, ReadUsers
@@ -21,6 +24,10 @@ class CommandProvider(Provider):
         WebLogin,
     )
 
+    service = provide_all(
+        RuleEvaluator,
+    )
+
     commands = provide_all(
         CreateUser,
         CreateAdminUser,
@@ -34,4 +41,7 @@ class CommandProvider(Provider):
         UpdateFraudRule,
         DeleteFraudRule,
         ValidateDSL,
+        CreateTransaction,
+        ReadTransactions,
+        ReadTransaction
     )

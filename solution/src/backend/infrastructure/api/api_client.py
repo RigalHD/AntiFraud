@@ -1,9 +1,10 @@
 import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from datetime import datetime
 from uuid import UUID
 
-from adaptix import Retort
+from adaptix import NameStyle, Retort, dumper, name_mapping
 from aiohttp import ClientSession
 from descanso import RestBuilder
 from descanso.client import AsyncResponseWrapper
@@ -12,14 +13,17 @@ from descanso.request import HttpRequest
 from descanso.response import BaseResponseTransformer
 from descanso.response import HttpResponse as DescansoHttpResponse
 from descanso.response_transformers import ErrorRaiser
+from pydantic import EmailStr
 
 from backend.application.forms.fraud_rule import (
     DSLValidationForm,
     FraudRuleForm,
     UpdateFraudRuleForm,
 )
+from backend.application.forms.transaction import TransactionForm
 from backend.application.forms.user import AdminUserForm, UpdateUserForm, UserForm
 from backend.application.fraud_rule.validate_dsl import DSLInfo
+from backend.application.transaction.dto import TransactionDecision, TransactionsList
 from backend.application.user.dto import UsersList
 from backend.domain.entity.fraud_rule import FraudRule
 from backend.domain.entity.user import User
@@ -159,6 +163,43 @@ class AntiFraudApiClient(AiohttpClient):
     def delete_fraud_rule(self, id: UUID) -> APIResponse[None]:
         raise NotImplementedError
 
-    @rest.post("fraud-rules/validate", error_raiser=ErrorRaiser(except_codes=(200, 401, 403, 422)))
+    @rest.post("fraud-rules/validate", error_raiser=ErrorRaiser(except_codes=(200, 401, 403)))
     def validate_dsl(self, body: DSLValidationForm) -> APIResponse[DSLInfo]:
+        raise NotImplementedError
+
+    @rest.post(
+        "transactions/",
+        error_raiser=ErrorRaiser(except_codes=(201, 401, 403, 404, 422)),
+        request_body_dumper=Retort(
+            recipe=[
+                dumper(datetime, lambda x: x.strftime("%Y-%m-%dT%H:%M:%SZ")),
+                dumper(EmailStr, str),
+                name_mapping(name_style=NameStyle.CAMEL),
+            ],
+        ),
+    )
+    def create_transaction(self, body: TransactionForm) -> APIResponse[TransactionDecision]:
+        raise NotImplementedError
+
+    @rest.get(
+        "transactions/{id}",
+        error_raiser=ErrorRaiser(except_codes=(200, 401, 403, 404)),
+    )
+    def read_transaction(self, id: UUID) -> APIResponse[TransactionDecision]:
+        raise NotImplementedError
+
+    @rest.get(
+        "transactions/",
+        error_raiser=ErrorRaiser(except_codes=(200, 401, 422)),
+    )
+    def read_transactions(
+        self,
+        page: int = 0,
+        size: int = 20,
+        userId: UUID | None = None,  # noqa: N803  Пишу в спешке, фиксить некогда
+        status: str | None = None,
+        isFraud: bool | None = None,  # noqa: N803  Пишу в спешке, фиксить некогда
+        from_: datetime | None = None,
+        to: datetime | None = None,
+    ) -> APIResponse[TransactionsList]:
         raise NotImplementedError

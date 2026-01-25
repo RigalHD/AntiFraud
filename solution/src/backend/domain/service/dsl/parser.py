@@ -10,7 +10,7 @@ from backend.domain.service.dsl.ast_node import ASTNode, Comparison, Logical
 from backend.domain.service.dsl.tokens import Token, TokenType
 
 VALID_FIELDS = {"amount", "currency", "merchantId", "ipAddress", "deviceId"}
-STRING_FIELDS = {"currency", "ipAddress", "deviceId", "user.region"}
+STRING_FIELDS = {"currency", "ipAddress", "deviceId", "merchantId"}
 DECIMAL_FIELDS = {"amount"}
 NUMERIC_OPERATORS = {"=", "!=", "<", "<=", ">", ">="}
 
@@ -29,14 +29,16 @@ class DSLParser:
         self.pos += 1
         return token
 
-    def parse_value(self, token: Token) -> Decimal | str:
+    def parse_value(self, token: Token) -> Decimal | int | str:
         if token.token_type == TokenType.NUMBER:
             try:
+                if "." not in token.value:
+                    return int(token.value)
                 return Decimal(token.value)
             except InvalidOperation:
                 raise DSLParseError(
                     message="Некорректное числовое значение",
-                    position=token.position,
+                    position=token.pos,
                     near=token.value,
                 ) from InvalidOperation
 
@@ -51,17 +53,17 @@ class DSLParser:
         right = self.next()
 
         if left.token_type != TokenType.FIELD:
-            raise DSLParseError(message="Ошибка парсинга", position=left.position, near=left.value)
+            raise DSLParseError(message="Ошибка парсинга", position=left.pos, near=left.value)
         if operator.token_type != TokenType.OP:
             raise DSLParseError(
                 message="Ошибка парсинга",
-                position=operator.position,
+                position=operator.pos,
                 near=operator.value,
             )
         if right.token_type not in (TokenType.NUMBER, TokenType.STRING):
             raise DSLParseError(
                 message="Ошибка парсинга",
-                position=right.position,
+                position=right.pos,
                 near=right.value,
             )
 
@@ -75,7 +77,7 @@ class DSLParser:
 
         right_value = self.parse_value(right)
 
-        if left.value not in STRING_FIELDS and not isinstance(right_value, Decimal):
+        if left.value not in STRING_FIELDS and not isinstance(right_value, (int, Decimal)):
             raise DSLInvalidOperatorError(message=f"Неподдерживаемая операция {operator.value}")
 
         return Comparison(

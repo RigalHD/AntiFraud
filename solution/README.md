@@ -26,6 +26,7 @@ just clear
 ```
 ### Запуск линтеров
 ```
+uv pip install -e ".[lint]"
 just lint
 ```
 

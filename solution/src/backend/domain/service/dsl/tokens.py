@@ -9,9 +9,6 @@ class TokenType(Enum):
     OP = auto()
     AND = auto()
     OR = auto()
-    NOT = auto()
-    LPAREN = auto()
-    RPAREN = auto()
     EOF = auto()
     SKIP = auto()
 
@@ -20,17 +17,14 @@ class TokenType(Enum):
 class Token:
     token_type: TokenType
     value: str
-    position: int
+    pos: int
 
 
 TOKEN_SPECS = [
     (TokenType.AND, r"\bAND\b"),
     (TokenType.OR, r"\bOR\b"),
-    (TokenType.NOT, r"\bNOT\b"),
     (TokenType.OP, r">=|<=|!=|>|<|="),
-    (TokenType.LPAREN, r"\("),
-    (TokenType.RPAREN, r"\)"),
-    (TokenType.NUMBER, r"\d+(\.\d+)?"),
+    (TokenType.NUMBER, r"-?\d+(\.\d+)?"),
     (TokenType.STRING, r"'[^']*'"),
     (TokenType.FIELD, r"[a-zA-Z_.]+"),
     (TokenType.SKIP, r"\s+"),

@@ -1,12 +1,13 @@
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
-from ipaddress import IPv4Address
-from typing import Any, Self
+from typing import Self
+from uuid import UUID
 
 from pydantic import Field, model_validator
 
 from backend.application.exception.transaction import MissingLonOrLatError
 from backend.application.forms.base import BaseForm
+from backend.domain.entity.transaction import MetaDataJSON
 from backend.domain.misc_types import TransactionChannel, TransactionStatus
 
 
@@ -18,22 +19,52 @@ class TransactionLocationForm(BaseForm):
 
     @model_validator(mode="after")
     def check_lat_lon(self) -> Self:
-        lat = (self.latitude,)
+        lat = self.latitude
         lon = self.longitude
-        if (lat is None) != (lon is None):
-            raise MissingLonOrLatError
+
+        if (lat is None) and (lon is not None):
+            raise MissingLonOrLatError(field="latitude", issue="Долгота указана, а широта отсутствует")
+        if (lon is None) and (lat is not None):
+            raise MissingLonOrLatError(field="longitude", issue="Широта указана, а долгота отсутствует")
+
         return self
 
 
 class TransactionForm(BaseForm):
+    user_id: UUID | None = Field(default=None, alias="userId")
     amount: Decimal = Field(ge=Decimal("0.01"), le=Decimal("999999999.99"))
     currency: str = Field(pattern=r"^[A-Z]{3}$")
-    status: TransactionStatus
     merchant_id: str = Field(alias="merchantId", max_length=64)
-    merchant_category_code: str = Field(pattern=r"^\d{4}$")
+    merchant_category_code: str = Field(alias="merchantCategoryCode", pattern=r"^\d{4}$")
     timestamp: datetime
-    ip_address: IPv4Address = Field(alias="ipAddress", max_length=64)
+    ip_address: str = Field(alias="ipAddress", max_length=64)
     device_id: str = Field(alias="deviceId", max_length=128)
     channel: TransactionChannel
     location: TransactionLocationForm
-    metadata: dict[str, Any] = Field(default={})
+    metadata: MetaDataJSON = Field(default_factory=dict)
+
+
+class AdminTransactionForm(BaseForm):
+    user_id: UUID = Field(alias="userId")
+    amount: Decimal = Field(ge=Decimal("0.01"), le=Decimal("999999999.99"))
+    currency: str = Field(pattern=r"^[A-Z]{3}$")
+    merchant_id: str = Field(alias="merchantId", max_length=64)
+    merchant_category_code: str = Field(alias="merchantCategoryCode", pattern=r"^\d{4}$")
+    timestamp: datetime
+    ip_address: str = Field(alias="ipAddress", max_length=64)
+    device_id: str = Field(alias="deviceId", max_length=128)
+    channel: TransactionChannel
+    location: TransactionLocationForm
+    metadata: MetaDataJSON = Field(default_factory=dict)
+
+
+class ManyTransactionReadForm(BaseForm):
+    page: int = Field(default=0, ge=0)
+    size: int = Field(default=20, ge=1, le=100)
+
+    user_id: UUID | None = Field(alias="userId", default=None)
+
+    status: TransactionStatus | None = Field(default=None)
+    is_fraud: bool | None = Field(alias="isFraud", default=None)
+    from_: datetime = Field(alias="from", default_factory=lambda: datetime.now(tz=UTC) - timedelta(days=90))
+    to: datetime = Field(default_factory=lambda: datetime.now(tz=UTC))

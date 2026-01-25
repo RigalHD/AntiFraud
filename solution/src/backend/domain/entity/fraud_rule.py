@@ -21,6 +21,7 @@ class FraudRule:
 
 @dataclass
 class FraudRuleEvaluationResult:
+    id: UUID
     transaction_id: UUID
     rule_id: UUID
     rule_name: str

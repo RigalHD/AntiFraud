@@ -24,10 +24,10 @@ class Lexer:
             if token_type == TokenType.SKIP:
                 return None
 
-            if token_type in (TokenType.AND, TokenType.OR, TokenType.NOT):
+            if token_type in (TokenType.AND, TokenType.OR):
                 value = value.upper()
 
-            return Token(token_type=token_type, value=value, position=position)
+            return Token(token_type=token_type, value=value, pos=position)
 
         raise DSLParseError(
             message="Ошибка при парсинге DSL",

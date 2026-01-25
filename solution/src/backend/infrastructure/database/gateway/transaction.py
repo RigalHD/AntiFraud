@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.application.common.gateway.transaction import TransactionGateway
@@ -50,3 +50,29 @@ class SATransactionGateway(TransactionGateway):
         res = await self.session.execute(stmt)
 
         return res.scalars().all()
+
+    async def get_count(
+        self,
+        from_: datetime,
+        to: datetime,
+        user_id: UUID | None = None,
+        status: TransactionStatus | None = None,
+        is_fraud: bool | None = None,
+    ) -> int | None:
+        stmt = (
+            select(func.count())
+            .select_from(transaction_table)
+            .where(transaction_table.c.created_at >= from_)
+            .where(transaction_table.c.created_at <= to)
+        )
+
+        if user_id is not None:
+            stmt = stmt.where(transaction_table.c.user_id == user_id)
+        if status is not None:
+            stmt = stmt.where(transaction_table.c.status == status)
+        if is_fraud is not None:
+            stmt = stmt.where(transaction_table.c.is_fraud == is_fraud)
+
+        res = await self.session.execute(stmt)
+
+        return res.scalar()

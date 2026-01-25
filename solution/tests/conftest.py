@@ -1,5 +1,7 @@
 import os
 from collections.abc import AsyncIterable, AsyncIterator
+from datetime import UTC, datetime
+from decimal import Decimal
 
 import aiohttp
 import pytest
@@ -13,10 +15,11 @@ from backend.application.forms.fraud_rule import (
     FraudRuleForm,
     UpdateFraudRuleForm,
 )
+from backend.application.forms.transaction import TransactionForm, TransactionLocationForm
 from backend.application.forms.user import AdminUserForm, UpdateUserForm, UserForm
 from backend.bootstrap.di.container import get_async_container
 from backend.domain.entity.fraud_rule import FraudRule
-from backend.domain.misc_types import Gender, MaritalStatus, Role
+from backend.domain.misc_types import Gender, MaritalStatus, Role, TransactionChannel
 from backend.infrastructure.api.api_client import AntiFraudApiClient
 from backend.infrastructure.auth.hasher import Hasher
 from backend.infrastructure.auth.idp.token_processor import AccessTokenProcessor
@@ -171,7 +174,7 @@ def fraud_rule_form() -> FraudRuleForm:
     form = FraudRuleForm(
         name="Test Fraud Rule",
         description="A test rule for fraud detection",
-        dslExpression="amount > 10",
+        dslExpression="amount >= 1000",
         priority=1,
         enabled=True,
     )
@@ -225,3 +228,29 @@ async def fraud_rule(
     api_client.reset_authorization()
 
     return fraud_rule
+
+
+@pytest.fixture
+def transaction_form(another_authorized_user: AuthorizedUser) -> TransactionForm:
+    location = TransactionLocationForm(
+        country="RU",
+        city="Moscow",
+        latitude=Decimal("55.7558"),
+        longitude=Decimal("37.6173"),
+    )
+
+    form = TransactionForm(
+        userId=another_authorized_user.user.id,
+        amount=Decimal("101.50"),
+        currency="RUB",
+        merchantId="merchant_001",
+        merchantCategoryCode="5411",
+        timestamp=datetime.now(tz=UTC),
+        ipAddress="192.168.1.1",
+        deviceId="device_abc123",
+        channel=TransactionChannel.WEB,
+        location=location,
+        metadata={"source": "test"},
+    )
+
+    return form

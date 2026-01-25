@@ -6,6 +6,7 @@ from backend.application.exception.fraud_rule import FraudRuleNameAlreadyExistsE
 from backend.application.exception.user import EmailAlreadyExistsError
 from backend.infrastructure.api.models import DETAILS, ERROR_CODE, ERROR_MESSAGE, UnwrappedErrorData
 from backend.infrastructure.serialization.base import FieldSkip
+from tests.utils.misc_types import DictResult
 
 
 def validate_exception(data: UnwrappedErrorData, exc_type: type[Exception]) -> None:
@@ -47,6 +48,6 @@ def validate_validation_error(
     assert len(error_data.field_errors) == len(invalid_fields.keys())
 
     for field_info in error_data.field_errors:
-        value = invalid_fields.get(field_info.field)
-        assert value is not None
+        value = invalid_fields.get(field_info.field, DictResult.NOT_FOUND)
+        assert value != DictResult.NOT_FOUND
         assert value == field_info.rejected_value

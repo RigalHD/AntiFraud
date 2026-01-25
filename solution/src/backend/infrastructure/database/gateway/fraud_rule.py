@@ -10,7 +10,10 @@ from backend.application.common.gateway.fraud_rule import (
     FraudRuleGateway,
 )
 from backend.domain.entity.fraud_rule import FraudRule, FraudRuleEvaluationResult
-from backend.infrastructure.database.table.fraud_rule import fraud_rule_table
+from backend.infrastructure.database.table.fraud_rule import (
+    fraud_rule_evaluation_result_table,
+    fraud_rule_table,
+)
 
 
 @dataclass(slots=True, frozen=True)
@@ -59,11 +62,13 @@ class SAFraudRuleEvaluationResultGateway(FraudRuleEvaluationResultGateway):
         transaction_id: UUID | None = None,
     ) -> Sequence[FraudRuleEvaluationResult]:
         stmt = select(FraudRuleEvaluationResult).order_by(
-            fraud_rule_table.c.created_at.asc(),
+            fraud_rule_evaluation_result_table.c.priority.asc(),
         )
 
         if transaction_id is not None:
-            stmt = stmt.where(fraud_rule_table.c.transaction_id == transaction_id)
+            stmt = stmt.where(
+                fraud_rule_evaluation_result_table.c.transaction_id == transaction_id,
+            )
 
         res = await self.session.execute(stmt)
 

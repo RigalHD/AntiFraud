@@ -10,6 +10,7 @@ from pydantic import ValidationError
 
 from backend.application.exception.base import (
     ApplicationError,
+    CustomValidationError,
     ForbiddenError,
     NotFoundError,
     UnauthorizedError,
@@ -18,7 +19,10 @@ from backend.application.exception.fraud_rule import (
     FraudRuleDoesNotExistError,
     FraudRuleNameAlreadyExistsError,
 )
-from backend.application.exception.transaction import MissingLonOrLatError
+from backend.application.exception.transaction import (
+    MissingLonOrLatError,
+    TransactionDoesNotExistError,
+)
 from backend.application.exception.user import (
     EmailAlreadyExistsError,
     InactiveUserError,
@@ -56,6 +60,8 @@ ERROR_HTTP_CODE = {
     DSLInvalidFieldError: 422,
     DSLInvalidOperatorError: 422,
     MissingLonOrLatError: 422,
+    TransactionDoesNotExistError: 404,
+    CustomValidationError: 422,
 }
 
 ERROR_MESSAGE = {
@@ -75,7 +81,9 @@ ERROR_MESSAGE = {
     DSLParseError: "Синтаксическая ошибка",
     DSLInvalidFieldError: "Неизвестное поле DSL",
     DSLInvalidOperatorError: "Оператор неприменим к типу",
-    MissingLonOrLatError: "Широта и долгота должны быть только переданны вместе, либо отсутствовать вместе",
+    MissingLonOrLatError: "Некоторые поля не прошли валидацию",
+    TransactionDoesNotExistError: "Ресурс не найден",
+    CustomValidationError: "Некоторые поля не прошли валидацию",
 }
 
 ERROR_CODE = {
@@ -96,6 +104,8 @@ ERROR_CODE = {
     DSLInvalidFieldError: "DSL_INVALID_FIELD",
     DSLInvalidOperatorError: "DSL_INVALID_OPERATOR",
     MissingLonOrLatError: "VALIDATION_FAILED",
+    TransactionDoesNotExistError: "NOT_FOUND",
+    CustomValidationError: "VALIDATION_FAILED",
 }
 
 DETAILS: dict[type[Exception], dict[str, str | int]] = {

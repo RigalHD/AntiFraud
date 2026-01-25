@@ -23,3 +23,13 @@ class TransactionGateway(Protocol):
         status: TransactionStatus | None = None,
         is_fraud: bool | None = None,
     ) -> Sequence[Transaction]: ...
+
+    @abstractmethod
+    async def get_count(
+        self,
+        from_: datetime,
+        to: datetime,
+        user_id: UUID | None = None,
+        status: TransactionStatus | None = None,
+        is_fraud: bool | None = None,
+    ) -> int | None: ...

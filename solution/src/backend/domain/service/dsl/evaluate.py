@@ -1,9 +1,11 @@
+from decimal import Decimal
+
 from backend.domain.entity.transaction import Transaction
 from backend.domain.exception.dsl import DSLError, DSLInvalidFieldError, DSLInvalidOperatorError
 from backend.domain.service.dsl.ast_node import ASTNode, Comparison, Logical
 
 
-class Evaluator:
+class DSLEvaluator:
     def __init__(self, transaction: Transaction) -> None:
         self.context = {
             "amount": transaction.amount,
@@ -35,11 +37,11 @@ class Evaluator:
         if isinstance(left, str) and isinstance(right, str):
             match node.operator:
                 case "=":
-                    return left == right
+                    return left.strip("'") == right.strip("'")
                 case "!=":
-                    return left != right
+                    return left.strip("'") != right.strip("'")
 
-        if isinstance(left, int) and isinstance(right, int):
+        if isinstance(left, (int, Decimal)) and isinstance(right, (int, Decimal)):
             match node.operator:
                 case "=":
                     return left == right
